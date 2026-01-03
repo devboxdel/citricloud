@@ -26,7 +26,7 @@ export default function LogPage() {
   const [sortOrder, setSortOrder] = useState<'new-to-old' | 'old-to-new'>('new-to-old');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
-  const [refreshInterval, setRefreshInterval] = useState<number>(10000); // 10 seconds default for real-time feel
+  const [refreshInterval, setRefreshInterval] = useState<number>(30000); // 30 seconds for real-time git commit updates
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   const [remoteLogs, setRemoteLogs] = useState<LogEntry[] | null>(null);
@@ -98,6 +98,50 @@ export default function LogPage() {
     
     
     
+    
+    
+    { // e19bd9f1
+      date: '2026-01-03',
+      time: '13:51',
+      type: 'update',
+      title: 'Bump pillow',
+      description: 'Git commit: Bump pillow'
+    },
+    { // 355413b0
+      date: '2026-01-03',
+      time: '13:50',
+      type: 'update',
+      title: 'Bump esbuild',
+      description: 'Git commit: Bump esbuild'
+    },
+    { // a1d10917
+      date: '2026-01-03',
+      time: '13:50',
+      type: 'update',
+      title: 'Bump orjson',
+      description: 'Git commit: Bump orjson'
+    },
+    { // 655b30f9
+      date: '2026-01-03',
+      time: '13:50',
+      type: 'update',
+      title: 'Bump python-multipart',
+      description: 'Git commit: Bump python-multipart'
+    },
+    { // 4614d2fe
+      date: '2026-01-03',
+      time: '13:50',
+      type: 'update',
+      title: 'Bump black',
+      description: 'Git commit: Bump black'
+    },
+    {
+      date: '2026-01-03',
+      time: '14:30',
+      type: 'fix',
+      title: 'Remove language selector from dashboard to fix underlined text issues',
+      description: 'Git commit: Remove language selector from dashboard to fix underlined text issues'
+    },
     {
       date: '2026-01-03',
       time: '14:26',

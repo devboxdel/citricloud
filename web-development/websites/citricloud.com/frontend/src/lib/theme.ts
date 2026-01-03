@@ -69,36 +69,23 @@ export function scheduleNextSwitch(sun: SunTimes | null) {
 }
 
 export async function initThemeOnLoad() {
-  const { sunTimes, setSunTimes } = useThemeStore.getState();
+  // Use system preference without geolocation
+  const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyThemeClass(systemPrefersDark);
   
-  // Check if we have recent sun times (within last 6 hours)
-  if (sunTimes?.computedAt) {
-    const computedTime = new Date(sunTimes.computedAt).getTime();
-    const now = Date.now();
-    const sixHours = 6 * 60 * 60 * 1000;
+  // Watch for system theme changes
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      applyThemeClass(e.matches);
+    };
     
-    if (now - computedTime < sixHours) {
-      // Use cached sun times
-      const dark = isDarkNow(sunTimes);
-      applyThemeClass(dark);
-      scheduleNextSwitch(sunTimes);
-      return;
+    // Use addEventListener for modern browsers
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+    } else if (mediaQuery.addListener) {
+      // Fallback for older browsers
+      mediaQuery.addListener(handleChange);
     }
-  }
-  
-  // Always try to get geolocation for sunrise/sunset
-  try {
-    const pos = await getCurrentPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 86400_000 }); // 24 hours cache
-    const sun = computeSunTimes(pos.coords.latitude, pos.coords.longitude);
-    setSunTimes(sun);
-    const dark = isDarkNow(sun);
-    applyThemeClass(dark);
-    scheduleNextSwitch(sun);
-  } catch {
-    // Fallback: use system preference if geolocation fails
-    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    applyThemeClass(systemPrefersDark);
-    // Retry geolocation after 1 minute
-    setTimeout(() => initThemeOnLoad(), 60000);
   }
 }

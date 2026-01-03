@@ -10,7 +10,11 @@ import NotificationBell from './NotificationBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cmsAPI, authAPI } from '../lib/api';
 
-export default function Navbar() {
+type NavbarProps = {
+  transparent?: boolean; // Transparent header for hero sections
+};
+
+export default function Navbar({ transparent = false }: NavbarProps) {
   const authStore = useAuthStore();
   // Subscribe directly to cart items so the badge updates as soon as the store rehydrates
   const cartItemCount = useCartStore((state) =>
@@ -161,12 +165,16 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl shadow-lg border-b border-white/30 dark:border-gray-700/30">
+    <nav className={`fixed top-0 left-0 right-0 w-full z-50 ${
+      transparent 
+        ? 'bg-transparent' 
+        : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl shadow-lg border-b border-white/30 dark:border-gray-700/30'
+    }`}>
       <div className="container mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 max-w-7xl overflow-x-hidden">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center shrink-0">
             <img
-              src={isDarkMode ? "/darkmode.svg?v=8" : "/lightmode.svg?v=8"}
+              src={transparent ? "/darkmode.svg?v=8" : (isDarkMode ? "/darkmode.svg?v=8" : "/lightmode.svg?v=8")}
               alt="CITRICLOUD"
               width="667"
               height="60"
@@ -185,7 +193,11 @@ export default function Navbar() {
                   <a
                     key={item.id}
                     href={item.url}
-                    className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-all"
+                    className={`px-4 py-2 rounded-lg ${
+                      transparent 
+                        ? 'text-white hover:text-primary-300 hover:bg-white/10' 
+                        : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    } font-medium transition-all`}
                   >
                     Shop
                   </a>
@@ -198,7 +210,11 @@ export default function Navbar() {
                   <a
                     key={item.id}
                     href={item.url}
-                    className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-all"
+                    className={`px-4 py-2 rounded-lg ${
+                      transparent 
+                        ? 'text-white hover:text-primary-300 hover:bg-white/10' 
+                        : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    } font-medium transition-all`}
                   >
                     Blog
                   </a>
@@ -211,7 +227,11 @@ export default function Navbar() {
                   <a
                     key={item.id}
                     href={item.url}
-                    className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-all"
+                    className={`px-4 py-2 rounded-lg ${
+                      transparent 
+                        ? 'text-white hover:text-primary-300 hover:bg-white/10' 
+                        : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    } font-medium transition-all`}
                   >
                     Services
                   </a>
@@ -240,7 +260,11 @@ export default function Navbar() {
                           setNotificationOpen(false);
                         }
                       }}
-                      className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-all flex items-center gap-1"
+                      className={`px-4 py-2 rounded-lg ${
+                        transparent 
+                          ? 'text-white hover:text-primary-300 hover:bg-white/10' 
+                          : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      } font-medium transition-all flex items-center gap-1`}
                     >
                       {item.icon && <i className={`${item.icon} w-4 h-4`}></i>}
                       {item.title}
@@ -280,7 +304,11 @@ export default function Navbar() {
                 <a 
                   key={item.id}
                   href={item.url}
-                  className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-all flex items-center gap-2"
+                  className={`px-4 py-2 rounded-lg ${
+                    transparent 
+                      ? 'text-white hover:text-primary-300 hover:bg-white/10' 
+                      : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  } font-medium transition-all flex items-center gap-2`}
                 >
                   {item.icon && <i className={`${item.icon} w-4 h-4`}></i>}
                   {item.title}
@@ -293,7 +321,11 @@ export default function Navbar() {
             {/* Cart Button */}
             <Link
               to="/cart"
-              className="relative hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-medium transition-all"
+              className={`relative hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl ${
+                transparent
+                  ? 'bg-white/10 hover:bg-white/20 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
+              } font-medium transition-all`}
             >
               <FiShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="hidden md:inline text-sm">Cart</span>
@@ -333,7 +365,11 @@ export default function Navbar() {
                     setProfileDropdownOpen(!profileDropdownOpen);
                     setNotificationOpen(false);
                   }}
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-medium transition-all"
+                  className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl ${
+                    transparent
+                      ? 'bg-white/10 hover:bg-white/20 text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
+                  } font-medium transition-all`}
                 >
                   <FiUser className="w-4 h-4 sm:w-5 sm:h-5" />
                   <FiChevronDown className={`w-4 h-4 transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
@@ -404,7 +440,11 @@ export default function Navbar() {
             {/* Login Button */}
             {!isAuthenticated && (
               <a href="https://my.citricloud.com/login" className="hidden sm:inline-block">
-                <button className="px-4 py-2 rounded-lg text-white font-semibold bg-primary-700 hover:bg-primary-800 shadow-md transition-all text-sm sm:text-base">
+                <button className={`px-4 py-2 rounded-lg font-semibold shadow-md transition-all text-sm sm:text-base ${
+                  transparent
+                    ? 'text-white bg-white/20 hover:bg-white/30 border border-white/30'
+                    : 'text-white bg-primary-700 hover:bg-primary-800'
+                }`}>
                   Login
                 </button>
               </a>
@@ -415,7 +455,11 @@ export default function Navbar() {
               title="Toggle Mobile Menu"
               aria-label="Toggle Mobile Menu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              className={`lg:hidden p-2 rounded-lg transition-all ${
+                transparent
+                  ? 'text-white hover:bg-white/10'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
             >
               {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
             </button>

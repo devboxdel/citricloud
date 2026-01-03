@@ -5,6 +5,9 @@ import os
 import time
 from pathlib import Path
 import json
+import subprocess
+import re
+from datetime import datetime
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi import Response, Request
@@ -52,13 +55,100 @@ async def get_recent_files_activity():
 
 @router.get("/logs", tags=["Logs"])
 async def get_logs(request: Request):
-    """Return development logs for the frontend Logs page.
-    This is a minimal in-memory source; can be replaced with DB later.
+    """Return development logs dynamically generated from git commits.
+    This ensures real-time updates without requiring frontend rebuild.
     """
-    payload = {
-        "logs": dev_logs[-500:]  # return latest 500 entries
-    }
-    # Compute weak ETag from count + last item title/time
+    try:
+        # Get git commits from last 30 days
+        here = Path(__file__).resolve()
+        project_root = here.parents[6]  # backend/app/api/v1/endpoints/activity.py -> project root
+        
+        result = subprocess.run(
+            ['git', 'log', '--all', '--since=30 days ago', '--pretty=format:%H|||%s|||%ad|||%an', '--date=format:%Y-%m-%d %H:%M'],
+            cwd=str(project_root),
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        if result.returncode == 0 and result.stdout:
+            logs = []
+            seen_hashes = set()
+            
+            for line in result.stdout.strip().split('\n'):
+                if '|||' not in line:
+                    continue
+                    
+                parts = line.split('|||')
+                if len(parts) < 4:
+                    continue
+                    
+                commit_hash, message, date_time, author = parts[0], parts[1], parts[2], parts[3]
+                short_hash = commit_hash[:8]
+                
+                # Skip duplicates
+                if short_hash in seen_hashes:
+                    continue
+                seen_hashes.add(short_hash)
+                
+                # Skip generic commit messages
+                if message.lower() in ['wip', 'temp', 'test', 'merge', 'initial commit']:
+                    continue
+                
+                # Parse date and time
+                try:
+                    dt = datetime.strptime(date_time, '%Y-%m-%d %H:%M')
+                    log_date = dt.strftime('%Y-%m-%d')
+                    log_time = dt.strftime('%H:%M')
+                except:
+                    continue
+                
+                # Detect change type
+                message_lower = message.lower()
+                if any(word in message_lower for word in ['fix', 'bug', 'error', 'issue']):
+                    log_type = 'fix'
+                elif any(word in message_lower for word in ['add', 'new', 'feature', 'implement']):
+                    log_type = 'feature'
+                elif any(word in message_lower for word in ['improve', 'enhance', 'better', 'optimize']):
+                    log_type = 'improvement'
+                elif any(word in message_lower for word in ['update', 'bump', 'upgrade']):
+                    log_type = 'update'
+                elif any(word in message_lower for word in ['remove', 'delete']):
+                    log_type = 'deleted'
+                else:
+                    log_type = 'change'
+                
+                logs.append({
+                    'date': log_date,
+                    'time': log_time,
+                    'type': log_type,
+                    'title': message,
+                    'description': f'Git commit: {message}',
+                    'hash': short_hash
+                })
+            
+            # Limit to latest 500
+            logs = logs[:500]
+            
+            payload = {"logs": logs}
+            
+            # Generate ETag based on latest commit
+            etag = f"W/\"git-{logs[0]['hash']}-{len(logs)}\"" if logs else "W/\"git-empty\""
+            inm = request.headers.get("If-None-Match")
+            if inm == etag:
+                return Response(status_code=304)
+            
+            resp = JSONResponse(payload)
+            resp.headers["ETag"] = etag
+            resp.headers["Cache-Control"] = "public, max-age=30"  # 30 second cache for real-time feel
+            return resp
+            
+    except Exception as e:
+        # Fallback to in-memory logs on error
+        print(f"Error generating git logs: {e}")
+    
+    # Fallback to in-memory logs
+    payload = {"logs": dev_logs[-500:]}
     last = dev_logs[-1] if dev_logs else None
     etag = f"W/\"logs-{len(dev_logs)}-{(last or {}).get('title','')}-{(last or {}).get('time','')}\""
     inm = request.headers.get("If-None-Match")
@@ -66,7 +156,7 @@ async def get_logs(request: Request):
         return Response(status_code=304)
     resp = JSONResponse(payload)
     resp.headers["ETag"] = etag
-    resp.headers["Cache-Control"] = "public, max-age=60"
+    resp.headers["Cache-Control"] = "public, max-age=30"
     return resp
 
 

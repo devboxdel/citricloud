@@ -31,13 +31,13 @@ function getCurrentTimestamp() {
 
 function getRecentGitCommits(count = 20) {
   try {
-    // Get commits from the last 7 days to avoid duplicates from older history
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sinceDate = sevenDaysAgo.toISOString().split('T')[0];
+    // Get commits from the last 30 days to capture more history
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sinceDate = thirtyDaysAgo.toISOString().split('T')[0];
     
     const commits = execSync(
-      `git log --since="${sinceDate}" --pretty=format:"%H|||%s|||%ad" --date=format:"%Y-%m-%d %H:%M"`, 
+      `git log --all --since="${sinceDate}" --pretty=format:"%H|||%s|||%ad" --date=format:"%Y-%m-%d %H:%M"`, 
       {
         encoding: 'utf-8',
         cwd: path.join(__dirname, '..')
@@ -162,36 +162,39 @@ function formatLogEntry(entry) {
   const details = entry.details && entry.details.length > 0
     ? `,
       details: [
-${entry.details.map(d => `        '${d}'`).join(',\n')}
+${entry.details.map(d => `        '${d.replace(/'/g, "\\'")}'`).join(',\n')}
       ]`
     : '';
   
-  return `    {
+  // Add commit hash as a hidden identifier for better duplicate detection
+  const hashComment = entry.hash ? ` // ${entry.hash.substring(0, 8)}` : '';
+  
+  return `    {${hashComment}
       date: '${entry.date}',
       time: '${entry.time}',
       type: '${entry.type}',
-      title: '${entry.title}',
-      description: '${entry.description}'${details}
+      title: '${entry.title.replace(/'/g, "\\'")}',
+      description: '${entry.description.replace(/'/g, "\\'")}'${details}
     }`;
 }
 
 function checkForDuplicates(content, newEntry) {
-  // Extract commit hash if present for more accurate duplicate detection
+  // Check by commit hash first (most reliable)
   if (newEntry.hash) {
-    const hashPattern = `hash-${newEntry.hash.substring(0, 8)}`;
-    if (content.includes(hashPattern)) {
+    // Check if this exact hash already exists in the content
+    const shortHash = newEntry.hash.substring(0, 8);
+    if (content.includes(shortHash)) {
       return true;
     }
   }
   
-  // Check if an entry with same title and date/time already exists
+  // Check if an entry with same title and date exists (less strict - only check date, not time)
   const titleEscaped = newEntry.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const titleRegex = new RegExp(`title: '${titleEscaped}'`, 'g');
-  const dateTimePattern = `date: '${newEntry.date}',\\s*time: '${newEntry.time}'`;
-  const dateTimeRegex = new RegExp(dateTimePattern);
+  const datePattern = `date: '${newEntry.date}'`;
   
-  // If exact same title and timestamp exists, it's a duplicate
-  if (titleRegex.test(content) && dateTimeRegex.test(content)) {
+  // If exact same title and date exists, it's likely a duplicate
+  if (titleRegex.test(content) && content.includes(datePattern)) {
     return true;
   }
   

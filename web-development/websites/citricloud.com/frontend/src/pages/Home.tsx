@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { useQuery } from '@tanstack/react-query';
@@ -87,6 +88,18 @@ const getCategoryPath = (product: any): string => {
 export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
   const { t } = useLanguage();
+  const [isHeroVisible, setIsHeroVisible] = useState(true);
+
+  // Track if user has scrolled past hero section
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroHeight = 600; // Approximate hero height
+      setIsHeroVisible(window.scrollY < heroHeight - 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Fetch latest blog posts
   const { data: blogData } = useQuery({
@@ -152,7 +165,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
-      <Navbar />
+      <Navbar transparent={isHeroVisible} />
       <main>
 
       {/* Hero Section */}

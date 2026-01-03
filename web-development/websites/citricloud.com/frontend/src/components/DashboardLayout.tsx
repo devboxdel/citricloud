@@ -24,7 +24,7 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children, title, breadcrumb, showSampleGrid = false }: DashboardLayoutProps) {
   const { user, logout } = useAuthStore();
-  // Language functionality removed
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
