@@ -69,23 +69,43 @@ export function scheduleNextSwitch(sun: SunTimes | null) {
 }
 
 export async function initThemeOnLoad() {
-  // Use system preference without geolocation
-  const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyThemeClass(systemPrefersDark);
-  
-  // Watch for system theme changes
-  if (window.matchMedia) {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      applyThemeClass(e.matches);
-    };
+  try {
+    // Get user's geolocation once and store it
+    const stored = useThemeStore.getState().sunTimes;
+    let sun = stored;
     
-    // Use addEventListener for modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-    } else if (mediaQuery.addListener) {
-      // Fallback for older browsers
-      mediaQuery.addListener(handleChange);
+    // If no stored location or it's old (>24h), get fresh location
+    const needsRefresh = !stored?.computedAt || 
+      (new Date().getTime() - new Date(stored.computedAt).getTime() > 24 * 60 * 60 * 1000);
+    
+    if (needsRefresh) {
+      try {
+        const pos = await getCurrentPosition({ timeout: 5000, maximumAge: 24 * 60 * 60 * 1000 });
+        sun = computeSunTimes(pos.coords.latitude, pos.coords.longitude);
+        useThemeStore.setState({ sunTimes: sun });
+      } catch (err) {
+        // If geolocation fails, use stored data or fall back to system preference
+        if (!stored) {
+          const systemPrefersDark = window.matchMedia?.('(prefers-color-mark: dark)').matches;
+          applyThemeClass(systemPrefersDark);
+          return;
+        }
+      }
     }
+    
+    // Apply theme based on sunrise/sunset
+    if (sun) {
+      const dark = isDarkNow(sun);
+      applyThemeClass(dark);
+      scheduleNextSwitch(sun);
+    } else {
+      // Fallback to system preference
+      const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+      applyThemeClass(systemPrefersDark);
+    }
+  } catch (error) {
+    // Final fallback to system preference
+    const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    applyThemeClass(systemPrefersDark);
   }
 }

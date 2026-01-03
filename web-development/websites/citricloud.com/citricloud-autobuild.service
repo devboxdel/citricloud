@@ -1,0 +1,20 @@
+[Unit]
+Description=CITRICLOUD Auto-Build Watcher
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com
+ExecStart=/bin/bash /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/auto-build.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=citricloud-autobuild
+
+# Environment
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+[Install]
+WantedBy=multi-user.target

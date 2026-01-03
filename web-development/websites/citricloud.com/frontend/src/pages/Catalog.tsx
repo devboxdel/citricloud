@@ -19,18 +19,18 @@ const decodeHTMLEntities = (text: string) => {
 };
 
 // Get category path from product for URL generation
-// Returns: 'parent-slug/child-slug' for subcategories, 'category-slug' for parent categories, 'shop' as fallback
+// Returns: 'catalog/parent-slug/child-slug' for subcategories, 'catalog/category-slug' for parent categories, 'catalog' as fallback
 const getCategoryPath = (product: any): string => {
   const category = product.category;
-  if (!category) return 'shop';
+  if (!category) return 'catalog';
   
   // If category has a parent, construct parent/child path
   if (category.parent) {
-    return `${category.parent.slug}/${category.slug}`;
+    return `catalog/${category.parent.slug}/${category.slug}`;
   }
   
   // Otherwise just use the category slug
-  return category.slug;
+  return `catalog/${category.slug}`;
 };
 
 // Normalize image URLs to use current origin and append cache-busting token for /uploads/

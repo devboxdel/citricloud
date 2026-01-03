@@ -92,6 +92,112 @@ export default function LogPage() {
 
   // Auto-generated log entries from git commits (do not manually edit this array)
   const logEntries: LogEntry[] = remoteLogs ?? [
+    { // latest
+      date: '2026-01-03',
+      time: '19:30',
+      type: 'improvement',
+      title: 'Redesigned Contact megamenu with two-column featured layout',
+      description: 'Completely redesigned Contact megamenu with featured "Get in Touch" card, quick stats, and streamlined contact methods list',
+      details: [
+        'Two-column asymmetric layout with gradient hero card',
+        'Featured contact form with 24h response time badge',
+        'Quick stats showing response time and 24/7 support',
+        'List of all contact methods with hover effects',
+        '"Recommended" badge on primary contact method',
+        'Smooth animations and professional gradients'
+      ]
+    },
+    { // latest
+      date: '2026-01-03',
+      time: '18:45',
+      type: 'feature',
+      title: 'Added comprehensive Workspace service page with 15+ integrated apps',
+      description: 'Implemented full Workspace landing page based on services.citricloud.com/workspace design',
+      details: [
+        'Hero section with dual CTAs (Open Workspace, Get Started)',
+        'Features overview: All-in-One Platform, Cloud-Based, Team Collaboration',
+        '15 integrated apps with category filtering (Productivity, Communication, Planning, etc.)',
+        'Detailed app cards: Email, Words, Sheets, Drive, Bookings, Contacts, Todo, Forms, Teams, Lists, Courses, Planner, Projects, Visio, Whiteboard',
+        'Stats section: 15+ Apps, 99.9% Uptime, 100GB+ Storage, 24/7 Support',
+        'Pricing plans: Starter ($12), Professional ($20), Enterprise (Custom)',
+        'Customer testimonials with 5-star ratings',
+        'FAQ accordion with 6 common questions',
+        'Full CTA section with gradient background'
+      ]
+    },
+    { // latest
+      date: '2026-01-03',
+      time: '18:00',
+      type: 'improvement',
+      title: 'Reorganized Services megamenu with categorized layout',
+      description: 'Restructured Services dropdown into 5 categories with improved visual hierarchy',
+      details: [
+        'Cloud & Infrastructure: Cloud Hosting, Cloud Migration, Database Management',
+        'Development: Web Development, App Development, API Development',
+        'DevOps & Operations: DevOps & CI/CD, Managed Services',
+        'Security & Backup: Security Services, Backup & Recovery',
+        'Business Solutions: Workspace, E-commerce Solutions, IT Consulting',
+        '3-column grid layout with category headers',
+        'Compact design with icons and hover animations'
+      ]
+    },
+    { // latest
+      date: '2026-01-03',
+      time: '17:30',
+      type: 'feature',
+      title: 'Enhanced Services megamenu with icons and card-based design',
+      description: 'Added professional icons to all 12 service items and implemented card-based layout',
+      details: [
+        'Added react-icons: FiCloud, FiCode, FiSmartphone, FiDatabase, etc.',
+        'Card-based layout with bordered containers',
+        'Gradient icon backgrounds with scale animation on hover',
+        'Arrow indicators that slide on hover',
+        'Shadow effects and border color transitions',
+        'Gradient overlay on hover for visual depth'
+      ]
+    },
+    { // latest
+      date: '2026-01-03',
+      time: '17:00',
+      type: 'fix',
+      title: 'Fixed Services megamenu navigation links',
+      description: 'Changed all Services submenu URLs from external subdomain to local SPA routes',
+      details: [
+        'Updated URLs from https://services.citricloud.com/* to /services/*',
+        'Fixed 12 service links: cloud-hosting, web-development, app-development, e-commerce, etc.',
+        'Enabled proper React Router navigation',
+        'Fixed SPA routing issues'
+      ]
+    },
+    { // latest
+      date: '2026-01-03',
+      time: '16:30',
+      type: 'feature',
+      title: 'Expanded Services megamenu from 6 to 12 items',
+      description: 'Added 6 new service offerings to Services dropdown menu',
+      details: [
+        'Added: Database Management, API Development, DevOps & CI/CD',
+        'Added: Cloud Migration, IT Consulting, Managed Services',
+        'Created 12 individual service pages using ServiceTemplate',
+        'Updated App.tsx routes for all new services',
+        'Lazy-loaded components for optimal performance'
+      ]
+    },
+    { // latest
+      date: '2026-01-03',
+      time: '16:00',
+      type: 'feature',
+      title: 'Implemented dynamic Blog megamenu with real blog posts',
+      description: 'Replaced mock blog data with real API calls to show latest posts',
+      details: [
+        'Integrated cmsAPI.getBlogPosts() with proper error handling',
+        'Featured Posts section with 2-column layout',
+        'Latest Posts with images, titles, and dates',
+        'Categories section with links',
+        'Real-time blog post fetching from backend',
+        'Fallback to "No posts available" if API fails'
+      ]
+    },
     
     
     
@@ -100,6 +206,13 @@ export default function LogPage() {
     
     
     
+    { // 73b3a413
+      date: '2026-01-03',
+      time: '15:47',
+      type: 'update',
+      title: 'Implement real-time log updates: dynamic git commit tracking with 30s auto-refresh',
+      description: 'Git commit: Implement real-time log updates: dynamic git commit tracking with 30s auto-refresh'
+    },
     { // e19bd9f1
       date: '2026-01-03',
       time: '13:51',

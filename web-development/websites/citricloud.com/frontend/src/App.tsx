@@ -28,7 +28,6 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { error: Er
 import * as React from 'react';
 import { useAuthStore } from './store/authStore';
 import { profileAPI } from './lib/api';
-import { useEffect } from 'react';
 import { ToastProvider } from './components/Toast';
 import CookieBanner from './components/CookieBanner';
 import LiveChat from './components/LiveChat';
@@ -216,7 +215,14 @@ const ServicesPage = lazy(() => import('./pages/Services'));
 const BlogPage = lazy(() => import('./pages/Blog'));
 const BlogPostsPage = lazy(() => import('./pages/BlogPosts'));
 const BlogPostPage = lazy(() => import('./pages/BlogPost'));
-const ShopPage = lazy(() => import('./pages/Shop'));
+const ShopHome = lazy(() => import('./pages/ShopHome'));
+const Catalog = lazy(() => import('./pages/Catalog'));
+const HostingPlans = lazy(() => import('./pages/HostingPlans'));
+const Software = lazy(() => import('./pages/Software'));
+const Domains = lazy(() => import('./pages/Domains'));
+const SSL = lazy(() => import('./pages/SSL'));
+const SpecialOffers = lazy(() => import('./pages/SpecialOffers'));
+const ControlPanels = lazy(() => import('./pages/ControlPanels'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetail'));
 const CartPage = lazy(() => import('./pages/Cart'));
 const CheckoutPage = lazy(() => import('./pages/Checkout'));
@@ -304,24 +310,19 @@ const TermsPage = lazy(() => import('./pages/Terms'));
 // Lazy-load service detail pages
 const ServicesPages = {
   WorkspaceService: lazy(() => import('./pages/services/WorkspaceService')),
-  CloudHosting: lazy(() => import('./pages/services/index').then(m => ({ default: m.CloudHosting }))),
-  CloudStorage: lazy(() => import('./pages/services/index').then(m => ({ default: m.CloudStorage }))),
-  CloudBackup: lazy(() => import('./pages/services/index').then(m => ({ default: m.CloudBackup }))),
-  WebDevelopment: lazy(() => import('./pages/services/index').then(m => ({ default: m.WebDevelopment }))),
-  MobileApps: lazy(() => import('./pages/services/index').then(m => ({ default: m.MobileApps }))),
-  CustomSoftware: lazy(() => import('./pages/services/index').then(m => ({ default: m.CustomSoftware }))),
-  DedicatedServers: lazy(() => import('./pages/services/index').then(m => ({ default: m.DedicatedServers }))),
-  VPSHosting: lazy(() => import('./pages/services/index').then(m => ({ default: m.VPSHosting }))),
-  Colocation: lazy(() => import('./pages/services/index').then(m => ({ default: m.Colocation }))),
-  SSLCertificates: lazy(() => import('./pages/services/index').then(m => ({ default: m.SSLCertificates }))),
-  DDoSProtection: lazy(() => import('./pages/services/index').then(m => ({ default: m.DDoSProtection }))),
-  SecurityAudits: lazy(() => import('./pages/services/index').then(m => ({ default: m.SecurityAudits }))),
-  MySQLService: lazy(() => import('./pages/services/index').then(m => ({ default: m.MySQLService }))),
-  PostgreSQLService: lazy(() => import('./pages/services/index').then(m => ({ default: m.PostgreSQLService }))),
-  MongoDBService: lazy(() => import('./pages/services/index').then(m => ({ default: m.MongoDBService }))),
-  CDNServices: lazy(() => import('./pages/services/index').then(m => ({ default: m.CDNServices }))),
-  LoadBalancing: lazy(() => import('./pages/services/index').then(m => ({ default: m.LoadBalancing }))),
-  DNSManagement: lazy(() => import('./pages/services/index').then(m => ({ default: m.DNSManagement }))),
+  Workspace: lazy(() => import('./pages/services/Workspace')),
+  CloudHosting: lazy(() => import('./pages/services/CloudHosting')),
+  WebDevelopment: lazy(() => import('./pages/services/WebDevelopment')),
+  AppDevelopment: lazy(() => import('./pages/services/AppDevelopment')),
+  EcommerceSolutions: lazy(() => import('./pages/services/EcommerceSolutions')),
+  DatabaseManagement: lazy(() => import('./pages/services/DatabaseManagement')),
+  APIDevelopment: lazy(() => import('./pages/services/APIDevelopment')),
+  DevOps: lazy(() => import('./pages/services/DevOps')),
+  CloudMigration: lazy(() => import('./pages/services/CloudMigration')),
+  Consulting: lazy(() => import('./pages/services/Consulting')),
+  ManagedServices: lazy(() => import('./pages/services/ManagedServices')),
+  SecurityServices: lazy(() => import('./pages/services/SecurityServices')),
+  BackupRecovery: lazy(() => import('./pages/services/BackupRecovery')),
 };
 const PrivacyPage = lazy(() => import('./pages/Privacy'));
 const CookiesPage = lazy(() => import('./pages/Cookies'));
@@ -447,7 +448,7 @@ function App() {
       if (hostname === 'about.citricloud.com') return <AboutPage />;
       if (hostname === 'services.citricloud.com') return <ServicesPage />;
       if (hostname === 'blog.citricloud.com') return <BlogPage />;
-      if (hostname === 'shop.citricloud.com') return <ShopPage />;
+      if (hostname === 'shop.citricloud.com') return <ShopHome />;
       if (hostname === 'contact.citricloud.com') return <ContactPage />;
       if (hostname === 'community.citricloud.com') return <CommunityPage />;
     }
@@ -475,35 +476,38 @@ function App() {
               <Route path="/services" element={<ServicesPage />} />
               {/* Service detail pages */}
               <Route path="/workspace" element={window.location.hostname === 'my.citricloud.com' ? <Workspace /> : <ServicesPages.WorkspaceService />} />
-              <Route path="/services/workspace" element={<Navigate to="/workspace" replace />} />
+              <Route path="/services/workspace" element={<ServicesPages.Workspace />} />
               <Route path="/services/cloud-hosting" element={<ServicesPages.CloudHosting />} />
-              <Route path="/services/cloud-storage" element={<ServicesPages.CloudStorage />} />
-              <Route path="/services/cloud-backup" element={<ServicesPages.CloudBackup />} />
               <Route path="/services/web-development" element={<ServicesPages.WebDevelopment />} />
-              <Route path="/services/mobile-apps" element={<ServicesPages.MobileApps />} />
-              <Route path="/services/custom-software" element={<ServicesPages.CustomSoftware />} />
-              <Route path="/services/dedicated-servers" element={<ServicesPages.DedicatedServers />} />
-              <Route path="/services/vps-hosting" element={<ServicesPages.VPSHosting />} />
-              <Route path="/services/colocation" element={<ServicesPages.Colocation />} />
-              <Route path="/services/ssl-certificates" element={<ServicesPages.SSLCertificates />} />
-              <Route path="/services/ddos-protection" element={<ServicesPages.DDoSProtection />} />
-              <Route path="/services/security-audits" element={<ServicesPages.SecurityAudits />} />
-              <Route path="/services/mysql" element={<ServicesPages.MySQLService />} />
-              <Route path="/services/postgresql" element={<ServicesPages.PostgreSQLService />} />
-              <Route path="/services/mongodb" element={<ServicesPages.MongoDBService />} />
-              <Route path="/services/cdn-services" element={<ServicesPages.CDNServices />} />
-              <Route path="/services/load-balancing" element={<ServicesPages.LoadBalancing />} />
-              <Route path="/services/dns-management" element={<ServicesPages.DNSManagement />} />
+              <Route path="/services/app-development" element={<ServicesPages.AppDevelopment />} />
+              <Route path="/services/e-commerce" element={<ServicesPages.EcommerceSolutions />} />
+              <Route path="/services/database-management" element={<ServicesPages.DatabaseManagement />} />
+              <Route path="/services/api-development" element={<ServicesPages.APIDevelopment />} />
+              <Route path="/services/devops" element={<ServicesPages.DevOps />} />
+              <Route path="/services/cloud-migration" element={<ServicesPages.CloudMigration />} />
+              <Route path="/services/consulting" element={<ServicesPages.Consulting />} />
+              <Route path="/services/managed-services" element={<ServicesPages.ManagedServices />} />
+              <Route path="/services/security" element={<ServicesPages.SecurityServices />} />
+              <Route path="/services/backup-recovery" element={<ServicesPages.BackupRecovery />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog-posts" element={<BlogPostsPage />} />
               <Route path="/blog/:categorySlug/:slug" element={<BlogPostPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
               <Route path="/:categorySlug/:slug" element={<BlogPostPage />} />
-              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/shop" element={<ShopHome />} />
+              <Route path="/catalog" element={<Catalog />} />
+              <Route path="/hosting-plans" element={<HostingPlans />} />
+              <Route path="/software" element={<Software />} />
+              <Route path="/domains" element={<Domains />} />
+              <Route path="/ssl" element={<SSL />} />
+              <Route path="/special-offers" element={<SpecialOffers />} />
+              <Route path="/control-panels" element={<ControlPanels />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/thank-you" element={<ThankYouPage />} />
               {/* Product routes with category and optional subcategory */}
+              <Route path="/catalog/:category/:subcategory/product/:slug" element={<ProductDetailPage />} />
+              <Route path="/catalog/:category/product/:slug" element={<ProductDetailPage />} />
               <Route path="/:category/:subcategory/product/:slug" element={<ProductDetailPage />} />
               <Route path="/:category/product/:slug" element={<ProductDetailPage />} />
               <Route path="/contact" element={<ContactPage />} />
