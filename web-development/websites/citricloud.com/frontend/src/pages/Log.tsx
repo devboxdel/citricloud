@@ -90,7 +90,24 @@ export default function LogPage() {
     })();
   }, [staticLogs]);
 
-  const defaultLogs: LogEntry[] = [
+  // Auto-generated log entries from git commits (do not manually edit this array)
+  const logEntries: LogEntry[] = remoteLogs ?? [
+    
+    {
+      date: '2026-01-03',
+      time: '13:34',
+      type: 'update',
+      title: 'First commit',
+      description: 'Production build with: First commit',
+      details: [
+        'Latest commit: First commit',
+        'Frontend assets compiled and optimized',
+        'All components bundled with latest changes',
+        'Modified files: eb-development/websites/citricloud.com/frontend/src/pages/Log.tsx',
+        'Build artifacts deployed to production server',
+        'Nginx reloaded to serve updated files'
+      ]
+    },
     {
       date: '2025-12-31',
       time: '23:45',
@@ -1773,12 +1790,11 @@ export default function LogPage() {
     }
   ];
 
-  // Merge remote + static + defaults so older logs stay visible even when backend returns a subset
-  const logEntries: LogEntry[] = useMemo(() => {
+  // Merge remote + static + auto-generated so older logs stay visible even when backend returns a subset
+  const allLogEntries: LogEntry[] = useMemo(() => {
     const combined = [
-      ...(Array.isArray(remoteLogs) ? remoteLogs : []),
       ...(Array.isArray(staticLogs) ? staticLogs : []),
-      ...defaultLogs,
+      ...logEntries,
     ];
 
     const deduped: LogEntry[] = [];
@@ -1791,7 +1807,7 @@ export default function LogPage() {
       }
     }
     return deduped;
-  }, [remoteLogs, staticLogs]);
+  }, [staticLogs]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -1857,7 +1873,7 @@ export default function LogPage() {
   };
 
   const filteredEntries = useMemo(() => {
-    let filtered = [...logEntries];
+    let filtered = [...allLogEntries];
     
     // Filter by selected date
     if (selectedDate) {
