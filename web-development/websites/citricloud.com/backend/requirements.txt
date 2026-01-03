@@ -17,7 +17,7 @@ pillow==10.2.0
 qrcode==8.2
 pyotp==2.9.0
 httpx==0.26.0
-orjson==3.9.12
+orjson==3.9.15
 asyncpg==0.29.0
 greenlet==3.0.3
 resend==0.8.0
