@@ -1,0 +1,10 @@
+# robots.txt for citricloud.com
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /workspace/
+Disallow: /login
+Disallow: /register
+Disallow: /account/
+
+Sitemap: https://citricloud.com/sitemap.xml

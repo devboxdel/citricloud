@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "CitriCloud Mobile",
+    "slug": "citricloud-mobile",
+    "version": "1.0.0",
+    "orientation": "default",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "updates": {
+      "enabled": false,
+      "fallbackToCacheTimeout": 0
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0b1220"
+      },
+      "package": "com.anonymous.citricloudmobile"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

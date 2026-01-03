@@ -1,0 +1,126 @@
+import SunCalc from 'suncalc';
+import { AutoSource, SunTimes, ThemeMode, useThemeStore } from '../store/themeStore';
+
+export function applyThemeClass(mode: ThemeMode, fallbackDark: boolean = false) {
+  const root = document.documentElement;
+  let effective: 'light' | 'dark' = 'light';
+  if (mode === 'light') effective = 'light';
+  else if (mode === 'dark') effective = 'dark';
+  else {
+    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    effective = systemPrefersDark || fallbackDark ? 'dark' : 'light';
+  }
+  root.classList.toggle('dark', effective === 'dark');
+}
+
+export async function getCurrentPosition(options?: PositionOptions): Promise<GeolocationPosition> {
+  if (!('geolocation' in navigator)) throw new Error('geolocation_unavailable');
+  return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, options));
+}
+
+export function computeSunTimes(lat: number, lon: number, date: Date = new Date()): SunTimes {
+  const times = SunCalc.getTimes(date, lat, lon);
+  return {
+    sunrise: times.sunrise?.toISOString(),
+    sunset: times.sunset?.toISOString(),
+    lat,
+    lon,
+    computedAt: new Date().toISOString(),
+  };
+}
+
+export function isDarkNow(sun: SunTimes | null, now: Date = new Date()): boolean {
+  if (!sun?.sunrise || !sun?.sunset) return false;
+  const sunrise = new Date(sun.sunrise);
+  const sunset = new Date(sun.sunset);
+  return now < sunrise || now >= sunset;
+}
+
+let nextSwitchTimer: number | null = null;
+
+export function clearNextSwitchTimer() {
+  if (nextSwitchTimer) {
+    window.clearTimeout(nextSwitchTimer);
+    nextSwitchTimer = null;
+  }
+}
+
+export function scheduleNextSwitch(autoSource: AutoSource, sun: SunTimes | null) {
+  clearNextSwitchTimer();
+  try {
+    if (autoSource === 'system') {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = () => {
+        applyThemeClass('auto');
+      };
+      // Note: addEventListener preferred, but older Safari uses addListener
+      if ('addEventListener' in mql) (mql as any).addEventListener('change', handler);
+      else (mql as any).addListener(handler);
+      return; // No explicit timeout; relies on media query listener
+    }
+    if (!sun?.sunrise || !sun?.sunset) return;
+    const now = new Date();
+    const sunrise = new Date(sun.sunrise).getTime();
+    const sunset = new Date(sun.sunset).getTime();
+    const nowMs = now.getTime();
+    // Determine next boundary time in ms
+    let nextMs: number;
+    if (nowMs < sunrise) nextMs = sunrise;
+    else if (nowMs < sunset) nextMs = sunset;
+    else {
+      // After sunset: schedule for tomorrow sunrise (recompute tomorrow)
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      nextMs = new Date(SunCalc.getTimes(tomorrow, sun.lat!, sun.lon!).sunrise).getTime();
+    }
+    const delay = Math.max(1000, nextMs - nowMs);
+    nextSwitchTimer = window.setTimeout(() => {
+      const { mode, autoSource } = useThemeStore.getState();
+      if (mode === 'auto' && autoSource === 'sun') {
+        // Re-apply and recompute for the new day
+        const dark = isDarkNow(sun);
+        applyThemeClass('auto', dark);
+      }
+    }, delay);
+  } catch (e) {
+    // noop
+  }
+}
+
+export async function initThemeOnLoad() {
+  const { mode, autoSource, sunTimes, setSunTimes } = useThemeStore.getState();
+  if (mode === 'auto' && autoSource === 'sun') {
+    // Check if we have recent sun times (within last 6 hours)
+    if (sunTimes?.computedAt) {
+      const computedTime = new Date(sunTimes.computedAt).getTime();
+      const now = Date.now();
+      const sixHours = 6 * 60 * 60 * 1000;
+      
+      if (now - computedTime < sixHours) {
+        // Use cached sun times
+        const dark = isDarkNow(sunTimes);
+        applyThemeClass('auto', dark);
+        scheduleNextSwitch('sun', sunTimes);
+        return;
+      }
+    }
+    
+    try {
+      const pos = await getCurrentPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 86400_000 }); // 24 hours cache
+      const sun = computeSunTimes(pos.coords.latitude, pos.coords.longitude);
+      setSunTimes(sun);
+      const dark = isDarkNow(sun);
+      applyThemeClass('auto', dark);
+      scheduleNextSwitch('sun', sun);
+      return;
+    } catch {
+      // fall back to system auto
+      applyThemeClass('auto');
+      scheduleNextSwitch('system', null);
+      return;
+    }
+  }
+  // light/dark or auto-system
+  applyThemeClass(mode);
+  scheduleNextSwitch(autoSource, sunTimes);
+}

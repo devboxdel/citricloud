@@ -1,0 +1,226 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import DashboardLayout from '../../../components/DashboardLayout';
+import { 
+  FiFolder, FiFile, FiUsers, FiClock, FiHardDrive, 
+  FiTrendingUp, FiDownload, FiUpload, FiShare2, FiStar,
+  FiFileText, FiImage, FiVideo, FiMusic
+} from 'react-icons/fi';
+
+export default function DMSOverview() {
+  const [storageUsed] = useState(45.8);
+  const [storageTotal] = useState(100);
+
+  const stats = [
+    { icon: <FiFile />, label: 'Total Files', value: '1,247', change: '+12%', color: 'blue' },
+    { icon: <FiFolder />, label: 'Folders', value: '87', change: '+5%', color: 'yellow' },
+    { icon: <FiUsers />, label: 'Shared Files', value: '156', change: '+8%', color: 'green' },
+    { icon: <FiClock />, label: 'Recent Activity', value: '34', change: '+15%', color: 'purple' },
+  ];
+
+  const recentFiles = [
+    { name: 'Project Proposal.pdf', size: '2.4 MB', type: 'document', modified: '2 hours ago', icon: <FiFileText /> },
+    { name: 'Team Photo.jpg', size: '5.8 MB', type: 'image', modified: '5 hours ago', icon: <FiImage /> },
+    { name: 'Presentation.mp4', size: '124 MB', type: 'video', modified: '1 day ago', icon: <FiVideo /> },
+    { name: 'Meeting Notes.docx', size: '156 KB', type: 'document', modified: '2 days ago', icon: <FiFileText /> },
+    { name: 'Budget Report.xlsx', size: '892 KB', type: 'document', modified: '3 days ago', icon: <FiFileText /> },
+  ];
+
+  const fileTypes = [
+    { type: 'Documents', count: 456, size: '12.3 GB', color: 'blue', icon: <FiFileText /> },
+    { type: 'Images', count: 523, size: '18.7 GB', color: 'green', icon: <FiImage /> },
+    { type: 'Videos', count: 89, size: '8.9 GB', color: 'red', icon: <FiVideo /> },
+    { type: 'Audio', count: 179, size: '5.9 GB', color: 'purple', icon: <FiMusic /> },
+  ];
+
+  const quickActions = [
+    { label: 'Upload Files', icon: <FiUpload />, color: 'blue' },
+    { label: 'Create Folder', icon: <FiFolder />, color: 'yellow' },
+    { label: 'Share Documents', icon: <FiShare2 />, color: 'green' },
+    { label: 'View Starred', icon: <FiStar />, color: 'orange' },
+  ];
+
+  return (
+    <DashboardLayout title="DMS Overview">
+      <div className="p-4 sm:p-6 space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Document Management System</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage and organize your files efficiently</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-lg bg-${stat.color}-500/10`}>
+                  <div className={`text-${stat.color}-500 text-xl`}>{stat.icon}</div>
+                </div>
+                <span className="text-xs font-medium text-green-600 dark:text-green-400">{stat.change}</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Storage Usage */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <FiHardDrive className="w-6 h-6 text-primary-500" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Storage Usage</h2>
+            </div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {storageUsed} GB / {storageTotal} GB
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-4 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(storageUsed / storageTotal) * 100}%` }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className={`h-full rounded-full ${
+                storageUsed / storageTotal > 0.8 ? 'bg-red-500' : storageUsed / storageTotal > 0.6 ? 'bg-yellow-500' : 'bg-primary-500'
+              }`}
+            />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            {((storageUsed / storageTotal) * 100).toFixed(1)}% of total storage used
+          </p>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <motion.button
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 + index * 0.1 }}
+              className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-primary-500 dark:hover:border-primary-500 transition-all text-center"
+            >
+              <div className={`inline-flex p-3 rounded-lg bg-${action.color}-500/10 text-${action.color}-500 text-2xl mb-3`}>
+                {action.icon}
+              </div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{action.label}</p>
+            </motion.button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Files */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800"
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <FiClock className="w-5 h-5 text-primary-500" />
+                Recent Files
+              </h2>
+            </div>
+            <div className="divide-y divide-gray-200 dark:divide-gray-800">
+              {recentFiles.map((file, index) => (
+                <div key={index} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                      {file.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{file.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{file.size} • {file.modified}</p>
+                    </div>
+                    <FiDownload className="w-4 h-4 text-gray-400 hover:text-primary-500" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* File Types Distribution */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800"
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <FiTrendingUp className="w-5 h-5 text-primary-500" />
+                File Types
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              {fileTypes.map((type, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`text-${type.color}-500`}>{type.icon}</div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{type.type}</span>
+                    </div>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">{type.count} files • {type.size}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(type.count / 1247) * 100}%` }}
+                      transition={{ duration: 0.8, delay: 0.8 + index * 0.1 }}
+                      className={`h-full rounded-full bg-${type.color}-500`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Activity Feed */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800"
+        >
+          <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
+          </div>
+          <div className="p-6 space-y-4">
+            {[
+              { action: 'uploaded', file: 'Project Proposal.pdf', time: '2 hours ago', user: 'You' },
+              { action: 'shared', file: 'Q4 Report.xlsx', time: '4 hours ago', user: 'John Doe' },
+              { action: 'deleted', file: 'Old Backup.zip', time: '1 day ago', user: 'You' },
+              { action: 'modified', file: 'Design Assets', time: '2 days ago', user: 'Jane Smith' },
+            ].map((activity, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-primary-500/10">
+                  <FiClock className="w-4 h-4 text-primary-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-900 dark:text-white">
+                    <span className="font-medium">{activity.user}</span> {activity.action} <span className="font-medium">{activity.file}</span>
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </DashboardLayout>
+  );
+}

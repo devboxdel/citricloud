@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Envelope Shape -->
+  <rect x="3" y="8" width="26" height="16" rx="2" fill="#2563EB" stroke="#1E40AF" stroke-width="1.5"/>
+  
+  <!-- Envelope Flap -->
+  <path d="M3 10L16 18L29 10" stroke="#1E40AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Letter Lines (indicating content) -->
+  <line x1="8" y1="15" x2="24" y2="15" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+  <line x1="8" y1="18" x2="20" y2="18" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+  
+  <!-- Cloud Icon (CITRICLOUD branding) -->
+  <circle cx="24" cy="8" r="5" fill="white"/>
+  <path d="M22 8C22 6.89543 22.8954 6 24 6C25.1046 6 26 6.89543 26 8C26 8.55228 26.4477 9 27 9C27.5523 9 28 9.44772 28 10C28 10.5523 27.5523 11 27 11H22C21.4477 11 21 10.5523 21 10C21 9.44772 21.4477 9 22 9C22 8.55228 22 8 22 8Z" fill="#2563EB"/>
+</svg>

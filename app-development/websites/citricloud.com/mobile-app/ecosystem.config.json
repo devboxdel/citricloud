@@ -1,0 +1,18 @@
+{
+  "apps": [{
+    "name": "expo-citricloud",
+    "cwd": "/home/ubuntu/infrastructure/cloud/app-development/websites/citricloud.com/mobile-app",
+    "script": "npm",
+    "args": "run start -- --clear",
+    "env": {
+      "REACT_NATIVE_PACKAGER_HOSTNAME": "57.129.74.173"
+    },
+    "instances": 1,
+    "autorestart": true,
+    "watch": false,
+    "max_memory_restart": "1G",
+    "error_file": "./logs/expo-error.log",
+    "out_file": "./logs/expo-out.log",
+    "log_date_format": "YYYY-MM-DD HH:mm:ss Z"
+  }]
+}

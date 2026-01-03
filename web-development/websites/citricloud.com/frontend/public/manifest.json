@@ -1,0 +1,17 @@
+{
+  "name": "CITRICLOUD",
+  "short_name": "CITRICLOUD",
+  "description": "Cloud infrastructure and development services",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

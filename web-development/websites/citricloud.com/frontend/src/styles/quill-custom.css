@@ -1,0 +1,84 @@
+/* Custom Quill Editor Styles */
+.ql-container {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.ql-editor {
+  min-height: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* Dark mode support */
+.dark .ql-toolbar {
+  background-color: #374151;
+  border-color: #4b5563 !important;
+}
+
+.dark .ql-container {
+  border-color: #4b5563 !important;
+}
+
+.dark .ql-editor {
+  background-color: #374151;
+  color: #f3f4f6;
+}
+
+.dark .ql-editor.ql-blank::before {
+  color: #6b7280;
+}
+
+.dark .ql-stroke {
+  stroke: #9ca3af !important;
+}
+
+.dark .ql-fill {
+  fill: #9ca3af !important;
+}
+
+.dark .ql-picker-label {
+  color: #9ca3af !important;
+}
+
+.dark .ql-picker-options {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.dark .ql-picker-item:hover {
+  background-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .ql-toolbar button:hover,
+.dark .ql-toolbar button:focus {
+  background-color: #4b5563;
+}
+
+.dark .ql-toolbar button.ql-active {
+  background-color: #4b5563;
+}
+
+.dark .ql-toolbar button.ql-active .ql-stroke {
+  stroke: #3b82f6 !important;
+}
+
+.dark .ql-toolbar button.ql-active .ql-fill {
+  fill: #3b82f6 !important;
+}
+
+/* Ensure proper spacing */
+.ql-editor p {
+  margin-bottom: 0.5em;
+}
+
+.ql-editor ul,
+.ql-editor ol {
+  padding-left: 1.5em;
+}

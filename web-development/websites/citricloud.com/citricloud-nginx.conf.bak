@@ -1,0 +1,610 @@
+# Cloudflare Real IP Configuration
+geo $cloudflare_ip {
+    default 0;
+    173.245.48.0/20 1;
+    103.21.244.0/22 1;
+    103.22.200.0/22 1;
+    103.31.4.0/22 1;
+    141.101.64.0/18 1;
+    108.162.192.0/18 1;
+    190.93.240.0/20 1;
+    188.114.96.0/20 1;
+    197.234.240.0/22 1;
+    198.41.128.0/17 1;
+    162.158.0.0/15 1;
+    104.16.0.0/13 1;
+    104.24.0.0/14 1;
+    172.64.0.0/13 1;
+    131.0.72.0/22 1;
+}
+
+# Set real IP from Cloudflare
+set_real_ip_from 173.245.48.0/20;
+set_real_ip_from 103.21.244.0/22;
+set_real_ip_from 103.22.200.0/22;
+set_real_ip_from 103.31.4.0/22;
+set_real_ip_from 141.101.64.0/18;
+set_real_ip_from 108.162.192.0/18;
+set_real_ip_from 190.93.240.0/20;
+set_real_ip_from 188.114.96.0/20;
+set_real_ip_from 197.234.240.0/22;
+set_real_ip_from 198.41.128.0/17;
+set_real_ip_from 162.158.0.0/15;
+set_real_ip_from 104.16.0.0/13;
+set_real_ip_from 104.24.0.0/14;
+set_real_ip_from 172.64.0.0/13;
+set_real_ip_from 131.0.72.0/22;
+set_real_ip_from 2400:cb00::/32;
+set_real_ip_from 2606:4700::/32;
+set_real_ip_from 2803:f800::/32;
+set_real_ip_from 2405:b500::/32;
+set_real_ip_from 2405:8100::/32;
+set_real_ip_from 2a06:98c0::/29;
+set_real_ip_from 2c0f:f248::/32;
+real_ip_header CF-Connecting-IP;
+
+# Optional IP allowlist to bypass maintenance (provide your IPs and uncomment)
+# map $remote_addr $is_whitelisted {
+#     default 0;
+#     203.0.113.10 1;  # Example office IP
+#     198.51.100.25 1; # Example developer IP
+# }
+
+# Extract JWT from access_token cookie and expose as Authorization header
+map $http_cookie $auth_token {
+    default "";
+    ~*access_token=([^;]+) $1;
+}
+
+# Upstream for FastAPI backend (port 8000)
+upstream backend_api {
+    server 127.0.0.1:8000;
+    keepalive 32;
+}
+
+# Upstream for Node.js/Frontend service (port 3000)
+upstream frontend_service {
+    server 127.0.0.1:3000;
+    keepalive 32;
+}
+
+# Rate limiting zones (DDoS protection)
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=100r/m;
+limit_req_zone $binary_remote_addr zone=general_limit:10m rate=1000r/m;
+limit_req_zone $binary_remote_addr zone=login_limit:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=strict_limit:10m rate=30r/m;
+
+# Connection limiting (prevent connection exhaustion attacks)
+limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;
+limit_conn_zone $server_name zone=conn_limit_per_server:10m;
+
+# Request body size limits (prevent large payload attacks)
+client_body_buffer_size 128k;
+client_max_body_size 10m;
+client_header_buffer_size 1k;
+large_client_header_buffers 4 8k;
+
+# Timeout protection (prevent slowloris attacks)
+client_body_timeout 10s;
+client_header_timeout 10s;
+send_timeout 10s;
+keepalive_timeout 30s;
+keepalive_requests 100;
+
+# Main site - HTTP redirect to HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name citricloud.com www.citricloud.com;
+    return 301 https://$host$request_uri;
+}
+
+# Main site - HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name citricloud.com www.citricloud.com;
+
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';
+    ssl_prefer_server_ciphers off;
+
+    # Custom error pages
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    
+    # Connection limits (DDoS protection)
+    limit_conn conn_limit_per_ip 10;
+    limit_conn conn_limit_per_server 1000;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Optional CSP (adjust if needed)
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:" always;
+
+    # Cloudflare header passthrough
+    add_header CF-Cache-Status $upstream_http_cf_cache_status;
+
+    # Compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml font/truetype font/opentype application/vnd.ms-fontobject image/svg+xml;
+    brotli on;
+    brotli_comp_level 6;
+    brotli_types text/plain text/css text/xml text/javascript application/json application/javascript application/xml+rss application/rss+xml font/truetype font/opentype application/vnd.ms-fontobject image/svg+xml;
+
+    # Root directory for static files
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+
+    # API proxy
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Authorization "Bearer $auth_token";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+        expires off;
+    }
+
+    # Strict rate limiting for auth endpoints (brute force protection)
+    location ~ ^/api/(auth|login|register) {
+        limit_req zone=login_limit burst=5 nodelay;
+        limit_req zone=strict_limit burst=10;
+        proxy_pass http://backend_api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Authorization "Bearer $auth_token";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+
+    # Allow access to standardized well-known paths (e.g., BIMI)
+    location ^~ /.well-known/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=3600";
+    }
+
+    # Strict rate limiting for auth endpoints (brute force protection)
+    location ~ ^/api/(auth|login|register|reset-password|forgot-password) {
+        limit_req zone=login_limit burst=5 nodelay;
+        limit_req zone=strict_limit burst=10;
+        limit_conn conn_limit_per_ip 5;
+        proxy_pass http://backend_api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Authorization "Bearer $auth_token";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+
+    location /docs { proxy_pass http://backend_api; }
+    location /redoc { proxy_pass http://backend_api; }
+    location /openapi.json { proxy_pass http://backend_api; }
+
+    # Uploaded media files - proxy to backend
+    location ^~ /uploads/ {
+        proxy_pass http://backend_api/uploads/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        expires 1M;
+        add_header Cache-Control "public" always;
+    }
+
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ {
+        expires 1M;
+        add_header Cache-Control "public";
+        try_files $uri =404;
+    }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+    # Maintenance mode: redirect all SPA traffic to /maintenance (assets and API unaffected)
+    # Exception: health check endpoint
+    location = /healthz {
+        add_header Cache-Control "no-store";
+        return 200 "OK";
+    }
+    # Serve the maintenance SPA route without re-redirecting
+    location = /maintenance {
+        add_header Cache-Control "no-store";
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Error page locations
+    location = /404.html {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    }
+    location = /50x.html {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    }
+
+    location / {
+        limit_req zone=general_limit burst=50 nodelay;
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-cache, no-store, must-revalidate, max-age=0" always;
+        add_header Pragma "no-cache" always;
+        add_header Expires "0" always;
+    }
+    location ~ /\. { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+}
+
+# Subdomain - my.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name my.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - my.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name my.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    
+    # Custom error pages
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    
+    # Serve built SPA assets directly for my.citricloud.com
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    
+    # Uploaded media files
+    location = /testlocation { return 200 "TEST OK"; }
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+        autoindex on;
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    # Maintenance mode for subdomain: redirect to /maintenance, but serve the SPA route
+    location = /healthz { add_header Cache-Control "no-store"; return 200 "OK"; }
+    location = /maintenance { add_header Cache-Control "no-store"; try_files $uri $uri/ /index.html; }
+    # Error page locations
+    location = /404.html {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    }
+    location = /50x.html {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    }
+    location / {
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-cache, no-store, must-revalidate, max-age=0" always;
+        add_header Pragma "no-cache" always;
+        add_header Expires "0" always;
+    }
+    location ~ /\. { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
+# Subdomain - mail.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name mail.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - mail.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name mail.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    
+    # Serve built SPA assets directly for mail.citricloud.com
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    
+    location = /workspace { return 301 /workspace/email; }
+    # Uploaded media files
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    location = /healthz { add_header Cache-Control "no-store"; return 200 "OK"; }
+    location / { add_header Cache-Control "public, max-age=3600"; return 308 /maintenance; }
+    location ~ /\. { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
+# Subdomain - about.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name about.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - about.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name about.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    # Serve built SPA assets directly for subdomain
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    # Redirect /about to /
+    location = /about { return 301 /; }
+    location = /workspace { return 301 /workspace/email; }
+    # Uploaded media files
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    location = /healthz { add_header Cache-Control "no-store"; return 200 "OK"; }
+    location = /maintenance { add_header Cache-Control "no-store"; try_files $uri $uri/ /index.html; }
+    location / { add_header Cache-Control "public, max-age=3600"; return 308 /maintenance; }
+    location ~ /\.
+    { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
+# Subdomain - services.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name services.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - services.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name services.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    # Serve built SPA assets directly for subdomain
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    # Redirect /services to /
+    location = /services { return 301 /; }
+    location = /workspace { return 301 /workspace/email; }
+    # Uploaded media files
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    location = /healthz { add_header Cache-Control "no-store"; return 200 "OK"; }
+    location = /maintenance { add_header Cache-Control "no-store"; try_files $uri $uri/ /index.html; }
+    location / { add_header Cache-Control "public, max-age=3600"; return 308 /maintenance; }
+    location ~ /\.
+    { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
+# Subdomain - blog.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name blog.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - blog.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name blog.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    # Serve built SPA assets directly for subdomain
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    # Redirect /blog to /
+    location = /blog { return 301 /; }
+    location = /workspace { return 301 /workspace/email; }
+    # Uploaded media files
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    location = /healthz { add_header Cache-Control "no-store"; return 200 "OK"; }
+    location = /maintenance { add_header Cache-Control "no-store"; try_files $uri $uri/ /index.html; }
+    location / { add_header Cache-Control "public, max-age=3600"; return 308 /maintenance; }
+    location ~ /\.
+    { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
+# Subdomain - shop.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name shop.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - shop.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name shop.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    # Serve built SPA assets directly for subdomain
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    # Redirect /shop to /
+    location = /shop { return 301 /; }
+    location = /workspace { return 301 /workspace/email; }
+    # Uploaded media files
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    location / { add_header Cache-Control "public, max-age=3600"; try_files $uri $uri/ /index.html; }
+    location ~ /\.
+    { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
+# Subdomain - community.citricloud.com HTTP redirect
+server { listen 80; listen [::]:80; server_name community.citricloud.com; return 301 https://community.citricloud.com$request_uri; }
+
+# Subdomain - community.citricloud.com HTTPS (Redirect to external community platform)
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name community.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    
+    # Redirect to external community platform (update this URL to your actual community platform)
+    return 301 https://discord.gg/your-invite-code;
+}
+
+server { listen 80; listen [::]:80; server_name contact.citricloud.com; return 301 https://$host$request_uri; }
+
+# Subdomain - contact.citricloud.com HTTPS
+server {
+    listen 443 ssl; # http2 directive optional depending on Nginx version
+    listen [::]:443 ssl;
+    server_name contact.citricloud.com;
+    ssl_certificate /etc/letsencrypt/live/citricloud.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/citricloud.com/privkey.pem;
+    ssl_session_timeout 1d; ssl_session_cache shared:SSL:50m; ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'; ssl_prefer_server_ciphers off;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always; add_header X-Content-Type-Options "nosniff" always; add_header X-XSS-Protection "1; mode=block" always; add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    limit_req zone=general_limit burst=50 nodelay;
+    # Serve built SPA assets directly for subdomain
+    root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/dist;
+    index index.html;
+    location /api/ {
+        limit_req zone=api_limit burst=20 nodelay;
+        proxy_pass http://backend_api; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection 'upgrade'; proxy_set_header Authorization "Bearer $auth_token"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; proxy_cache_bypass $http_upgrade; proxy_connect_timeout 60s; proxy_send_timeout 60s; proxy_read_timeout 60s; add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; expires off;
+    }
+    # Redirect /contact to /
+    location = /contact { return 301 /; }
+    location = /workspace { return 301 /workspace/email; }
+    # Uploaded media files
+    location ^~ /uploads/ {
+        root /home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/backend;
+        expires 1M;
+        add_header Cache-Control "public";
+    }
+
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; try_files $uri =404; }
+    location ~* \.(ico|css|js|gif|jpeg|jpg|png|svg|woff|woff2|ttf|eot)$ { expires 1M; add_header Cache-Control "public"; try_files $uri =404; }
+    # Serve maintenance SPA route explicitly, keep normal SPA serving for others
+    location = /maintenance { add_header Cache-Control "no-store"; try_files $uri $uri/ /index.html; }
+    location / { add_header Cache-Control "public, max-age=3600"; try_files $uri $uri/ /index.html; }
+    location ~ /\.
+    { deny all; access_log off; log_not_found off; }
+    location ~* (\.git|\.env|\.htaccess|\.htpasswd|web\.config|composer\.json|package\.json) { deny all; access_log off; log_not_found off; }
+    location /health { access_log off; return 200 "OK\n"; add_header Content-Type text/plain; }
+}
+
