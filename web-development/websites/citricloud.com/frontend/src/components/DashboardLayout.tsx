@@ -24,15 +24,13 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children, title, breadcrumb, showSampleGrid = false }: DashboardLayoutProps) {
   const { user, logout } = useAuthStore();
-  const { t, language, setLanguage } = useLanguage();
+  // Language functionality removed
   const navigate = useNavigate();
   const location = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showLanguages, setShowLanguages] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('EN');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -156,13 +154,7 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
     { id: 3, text: t('system_update_available'), time: `1 ${t('hour_ago')}`, unread: false },
   ];
 
-  const languages = [
-    { code: 'EN', name: 'English', flag: '🇺🇸' },
-    { code: 'ES', name: 'Español', flag: '🇪🇸' },
-    { code: 'FR', name: 'Français', flag: '🇫🇷' },
-    { code: 'DE', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'TR', name: 'Türkçe', flag: '🇹🇷' },
-  ];
+
 
   // Unread badge state
   const [unreadOrders, setUnreadOrders] = useState(false);
@@ -427,42 +419,6 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
                         </div>
                       ))}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            {/* Language Selector */}
-            <div className="relative hidden sm:block">
-              <button
-                onClick={() => setShowLanguages(!showLanguages)}
-                className="flex items-center space-x-1 px-3 h-9 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
-                title="Language"
-              >
-                <FiGlobe className="w-5 h-5" />
-                <span className="text-sm font-medium">{selectedLanguage}</span>
-              </button>
-              <AnimatePresence>
-                {showLanguages && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl p-2 shadow-lg border border-gray-200 dark:border-gray-800"
-                  >
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => {
-                          setSelectedLanguage(lang.code);
-                          setLanguage(lang.code.toLowerCase() as 'en' | 'nl' | 'de' | 'fr' | 'es');
-                          setShowLanguages(false);
-                        }}
-                        className={`w-full flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-all ${selectedLanguage === lang.code ? 'bg-primary-50' : ''}`}
-                      >
-                        <span className="text-xl">{lang.flag}</span>
-                        <span className="text-sm">{lang.name}</span>
-                      </button>
-                    ))}
                   </motion.div>
                 )}
               </AnimatePresence>

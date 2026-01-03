@@ -97,6 +97,14 @@ export default function LogPage() {
     
     
     
+    
+    {
+      date: '2026-01-03',
+      time: '14:26',
+      type: 'update',
+      title: 'Convert theme system to fully automatic based on local sunrise/sunset',
+      description: 'Git commit: Convert theme system to fully automatic based on local sunrise/sunset'
+    },
     {
       date: '2026-01-03',
       time: '14:16',
