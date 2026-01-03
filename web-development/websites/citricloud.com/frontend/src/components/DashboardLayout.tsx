@@ -13,6 +13,7 @@ import {
   FiShare2, FiClock, FiTag, FiMessageSquare, FiAlertTriangle, FiMessageCircle
 } from 'react-icons/fi';
 import ThemeToggle from './ThemeToggle';
+import { getVersionInfo } from '../utils/version';
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -824,8 +825,18 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
             <a href="mailto:support@citricloud.com" className="hover:text-primary-500 transition-colors">support@citricloud.com</a>
           </div>
 
-          <div className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
-            © 2025 CitriCloud — All rights reserved.
+          <div className="flex flex-col sm:flex-row items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
+            <span>© 2025 CitriCloud — All rights reserved.</span>
+            <span className="hidden sm:inline text-gray-400 dark:text-gray-600">•</span>
+            <a 
+              href={getVersionInfo().githubUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-[10px] sm:text-xs"
+              title="View on GitHub"
+            >
+              <span className="font-mono">v{getVersionInfo().version}</span>
+            </a>
           </div>
         </div>
       </footer>

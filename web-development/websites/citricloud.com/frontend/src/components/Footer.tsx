@@ -4,6 +4,7 @@ import { Cloud } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useLanguage } from '../context/LanguageContext';
 import Newsletter from './Newsletter';
+import { getVersionInfo } from '../utils/version';
 
 export default function Footer() {
   const { user } = useAuthStore();
@@ -129,6 +130,18 @@ export default function Footer() {
         </div>
         <div className="mt-6 sm:mt-8 text-center">
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2 sm:mb-3">{t('footer_copyright')}</div>
+          <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3 text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">
+            <a 
+              href={getVersionInfo().githubUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-100/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors"
+              title="View on GitHub"
+            >
+              <FaGithub size={12} />
+              <span className="font-mono">v{getVersionInfo().version}</span>
+            </a>
+          </div>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">
             <a href="/terms" className="hover:text-gray-900 dark:hover:text-gray-300 hover:underline transition-colors">{t('terms_conditions')}</a>
             <span className="text-gray-400 dark:text-gray-600 hidden sm:inline">•</span>
