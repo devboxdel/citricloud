@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiFolder, FiFile, FiMoreHorizontal, FiSearch, FiGrid, FiList, FiSettings, FiHelpCircle, FiUpload, FiPlus, FiStar, FiTrash2, FiShare2, FiDownload, FiArrowLeft, FiChevronDown, FiHome, FiUsers, FiClock, FiImage, FiAlertTriangle } from 'react-icons/fi';
 import { useAuthStore } from '../../store/authStore';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type DriveItem = {
@@ -282,7 +281,6 @@ export default function DriveApp() {
             <span className="text-xs sm:text-sm font-medium hidden sm:inline">{isSaving ? 'Saving...' : 'Save'}</span>
           </button>
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button className="p-2 hover:bg-white/10 rounded hidden sm:block" title="Settings">
             <FiSettings className="w-5 h-5" />

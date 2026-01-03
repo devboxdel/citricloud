@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiFileText, FiUser, FiClock, FiSearch, FiGrid, FiList, FiArrowLeft, FiPlus, FiTrash2, FiEdit2, FiFolder } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { workspaceAPI } from '../../lib/workspaceApi';
 import { useAuthStore } from '../../store/authStore';
@@ -103,7 +102,6 @@ export default function WordsApp() {
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

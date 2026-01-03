@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiFolderPlus, FiArrowLeft, FiAlertTriangle } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type Task = {
@@ -270,7 +269,6 @@ export default function ProjectsApp() {
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

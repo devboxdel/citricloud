@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUsers, FiPlus, FiEdit2, FiTrash2, FiArrowLeft, FiStar } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type Team = {
@@ -100,7 +99,6 @@ export default function TeamsApp() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <ThemeToggle compact={true} />
           <button onClick={() => navigate('/workspace')} className="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 rounded text-sm text-white">
             <FiArrowLeft className="inline mr-1" /> Back
           </button>

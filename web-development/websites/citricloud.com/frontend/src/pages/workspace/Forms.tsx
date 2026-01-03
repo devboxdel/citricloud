@@ -6,7 +6,6 @@ import {
   FiCheckSquare, FiType, FiAlignLeft, FiToggleLeft, FiChevronDown,
   FiStar, FiArchive, FiShare2, FiDownload, FiAlertTriangle
 } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { useEffect } from 'react';
 import { formsAPI } from '../../lib/formsApi';
@@ -388,7 +387,6 @@ export default function FormsApp() {
             </div>
           )}
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { FiMail, FiStar, FiSend, FiEdit, FiTrash2, FiInbox, FiArchive, FiAlertCircle, FiPaperclip, FiCornerUpLeft, FiCornerUpRight, FiSearch, FiRefreshCw, FiChevronDown, FiMoreHorizontal, FiArrowLeft, FiTrendingUp, FiSettings, FiX, FiMenu, FiFolder, FiTag, FiClock, FiPlus, FiChevronRight, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 import { emailAPI, emailAliasAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
-import ThemeToggle from '@/components/ThemeToggle';
 
 type Email = {
   id: number;
@@ -705,7 +704,6 @@ export default function EmailApp() {
             )}
           </div>
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => setShowSettings(true)}

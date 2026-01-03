@@ -410,9 +410,6 @@ export default function Navbar() {
               </a>
             )}
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
             {/* Mobile Menu Toggle */}
             <button
               title="Toggle Mobile Menu"

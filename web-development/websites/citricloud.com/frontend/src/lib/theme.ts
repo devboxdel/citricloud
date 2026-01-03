@@ -1,16 +1,9 @@
 import SunCalc from 'suncalc';
-import { AutoSource, SunTimes, ThemeMode, useThemeStore } from '../store/themeStore';
+import { SunTimes, useThemeStore } from '../store/themeStore';
 
-export function applyThemeClass(mode: ThemeMode, fallbackDark: boolean = false) {
+export function applyThemeClass(isDark: boolean) {
   const root = document.documentElement;
-  let effective: 'light' | 'dark' = 'light';
-  if (mode === 'light') effective = 'light';
-  else if (mode === 'dark') effective = 'dark';
-  else {
-    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    effective = systemPrefersDark || fallbackDark ? 'dark' : 'light';
-  }
-  root.classList.toggle('dark', effective === 'dark');
+  root.classList.toggle('dark', isDark);
 }
 
 export async function getCurrentPosition(options?: PositionOptions): Promise<GeolocationPosition> {
@@ -45,19 +38,9 @@ export function clearNextSwitchTimer() {
   }
 }
 
-export function scheduleNextSwitch(autoSource: AutoSource, sun: SunTimes | null) {
+export function scheduleNextSwitch(sun: SunTimes | null) {
   clearNextSwitchTimer();
   try {
-    if (autoSource === 'system') {
-      const mql = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = () => {
-        applyThemeClass('auto');
-      };
-      // Note: addEventListener preferred, but older Safari uses addListener
-      if ('addEventListener' in mql) (mql as any).addEventListener('change', handler);
-      else (mql as any).addListener(handler);
-      return; // No explicit timeout; relies on media query listener
-    }
     if (!sun?.sunrise || !sun?.sunset) return;
     const now = new Date();
     const sunrise = new Date(sun.sunrise).getTime();
@@ -75,12 +58,10 @@ export function scheduleNextSwitch(autoSource: AutoSource, sun: SunTimes | null)
     }
     const delay = Math.max(1000, nextMs - nowMs);
     nextSwitchTimer = window.setTimeout(() => {
-      const { mode, autoSource } = useThemeStore.getState();
-      if (mode === 'auto' && autoSource === 'sun') {
-        // Re-apply and recompute for the new day
-        const dark = isDarkNow(sun);
-        applyThemeClass('auto', dark);
-      }
+      // Re-apply and recompute for the new day
+      const dark = isDarkNow(sun);
+      applyThemeClass(dark);
+      scheduleNextSwitch(sun);
     }, delay);
   } catch (e) {
     // noop
@@ -88,39 +69,36 @@ export function scheduleNextSwitch(autoSource: AutoSource, sun: SunTimes | null)
 }
 
 export async function initThemeOnLoad() {
-  const { mode, autoSource, sunTimes, setSunTimes } = useThemeStore.getState();
-  if (mode === 'auto' && autoSource === 'sun') {
-    // Check if we have recent sun times (within last 6 hours)
-    if (sunTimes?.computedAt) {
-      const computedTime = new Date(sunTimes.computedAt).getTime();
-      const now = Date.now();
-      const sixHours = 6 * 60 * 60 * 1000;
-      
-      if (now - computedTime < sixHours) {
-        // Use cached sun times
-        const dark = isDarkNow(sunTimes);
-        applyThemeClass('auto', dark);
-        scheduleNextSwitch('sun', sunTimes);
-        return;
-      }
-    }
+  const { sunTimes, setSunTimes } = useThemeStore.getState();
+  
+  // Check if we have recent sun times (within last 6 hours)
+  if (sunTimes?.computedAt) {
+    const computedTime = new Date(sunTimes.computedAt).getTime();
+    const now = Date.now();
+    const sixHours = 6 * 60 * 60 * 1000;
     
-    try {
-      const pos = await getCurrentPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 86400_000 }); // 24 hours cache
-      const sun = computeSunTimes(pos.coords.latitude, pos.coords.longitude);
-      setSunTimes(sun);
-      const dark = isDarkNow(sun);
-      applyThemeClass('auto', dark);
-      scheduleNextSwitch('sun', sun);
-      return;
-    } catch {
-      // fall back to system auto
-      applyThemeClass('auto');
-      scheduleNextSwitch('system', null);
+    if (now - computedTime < sixHours) {
+      // Use cached sun times
+      const dark = isDarkNow(sunTimes);
+      applyThemeClass(dark);
+      scheduleNextSwitch(sunTimes);
       return;
     }
   }
-  // light/dark or auto-system
-  applyThemeClass(mode);
-  scheduleNextSwitch(autoSource, sunTimes);
+  
+  // Always try to get geolocation for sunrise/sunset
+  try {
+    const pos = await getCurrentPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 86400_000 }); // 24 hours cache
+    const sun = computeSunTimes(pos.coords.latitude, pos.coords.longitude);
+    setSunTimes(sun);
+    const dark = isDarkNow(sun);
+    applyThemeClass(dark);
+    scheduleNextSwitch(sun);
+  } catch {
+    // Fallback: use system preference if geolocation fails
+    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyThemeClass(systemPrefersDark);
+    // Retry geolocation after 1 minute
+    setTimeout(() => initThemeOnLoad(), 60000);
+  }
 }

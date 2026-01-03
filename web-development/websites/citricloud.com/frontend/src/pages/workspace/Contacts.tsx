@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUsers, FiArrowLeft, FiEdit2, FiTrash2, FiPlus, FiMail, FiPhone, FiAlertTriangle } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type Contact = {
@@ -90,7 +89,6 @@ export default function ContactsApp() {
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

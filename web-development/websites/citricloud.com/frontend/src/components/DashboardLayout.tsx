@@ -390,8 +390,6 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
             >
               <FiSearch className="w-5 h-5" />
             </button>
-            {/* Theme Toggle */}
-            <ThemeToggle compact />
             {/* Notifications */}
             <div className="relative">
               <button

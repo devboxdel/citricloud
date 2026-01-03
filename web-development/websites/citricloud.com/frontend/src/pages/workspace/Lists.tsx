@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiTrash2, FiEdit2, FiCheck, FiX, FiList, FiMoreVertical, FiArrowLeft, FiAlertTriangle } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 
 import { listsAPI } from '../../lib/listsApi';
 
@@ -113,7 +112,6 @@ export default function ListsApp() {
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

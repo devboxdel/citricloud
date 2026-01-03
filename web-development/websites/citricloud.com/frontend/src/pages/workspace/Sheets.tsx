@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiGrid, FiPlus, FiTrash2, FiEdit2, FiArrowLeft } from 'react-icons/fi';
 import { FiGrid as FiExcel } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type Sheet = {
@@ -132,7 +131,6 @@ export default function SheetsApp() {
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

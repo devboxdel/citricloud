@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import * as coursesApi from '../../lib/coursesApi';
 import { FiArrowLeft, FiChevronDown, FiChevronRight, FiMenu, FiRefreshCw, FiSearch, FiSettings, FiStar, FiTag, FiX, FiBookOpen, FiClock, FiFolder, FiAlertTriangle } from 'react-icons/fi';
 import Navbar from '../../components/Navbar';
-import ThemeToggle from '../../components/ThemeToggle';
 // Footer intentionally hidden for Courses app (like Lists)
 
 type Lesson = {
@@ -161,7 +160,6 @@ export default function CoursesApp() {
             </button>
           )}
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-white/10 rounded hidden sm:block" title="Settings">
             <FiSettings className="w-5 h-5" />

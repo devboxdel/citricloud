@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCheckSquare, FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 
 import { todoAPI } from '../../lib/todoApi';
 
@@ -74,7 +73,6 @@ export default function TodoApp() {
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

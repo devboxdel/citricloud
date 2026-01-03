@@ -15,6 +15,9 @@ fi
 
 echo "✅ Build artifacts found in dist/"
 
+# Reload systemd daemon to prevent warnings
+sudo systemctl daemon-reload &>/dev/null
+
 # Reload nginx to serve new files
 echo "🔄 Reloading nginx..."
 sudo systemctl reload nginx

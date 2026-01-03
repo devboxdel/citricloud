@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiEdit3, FiArrowLeft, FiTrash2 } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type Point = { x: number; y: number };
@@ -92,7 +91,6 @@ export default function WhiteboardApp() {
             <span className="text-sm font-medium hidden sm:inline">Clear</span>
           </button>
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}

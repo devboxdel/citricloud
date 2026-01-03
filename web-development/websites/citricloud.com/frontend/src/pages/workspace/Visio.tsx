@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSquare, FiCircle, FiType, FiArrowLeft } from 'react-icons/fi';
-import ThemeToggle from '../../components/ThemeToggle';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type ShapeType = 'rect' | 'ellipse' | 'text';
@@ -138,7 +137,6 @@ export default function VisioApp() {
             </button>
           </div>
           <div className="hidden sm:block">
-            <ThemeToggle compact={true} />
           </div>
           <button 
             onClick={() => navigate('/workspace')}
