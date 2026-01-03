@@ -29,17 +29,25 @@ function getCurrentTimestamp() {
   return { date, time };
 }
 
-function getRecentGitCommits(count = 5) {
+function getRecentGitCommits(count = 20) {
   try {
-    const commits = execSync(`git log -${count} --pretty=format:"%s|||%ad" --date=format:"%Y-%m-%d %H:%M"`, {
-      encoding: 'utf-8',
-      cwd: path.join(__dirname, '..')
-    }).split('\n').filter(Boolean);
+    // Get commits from the last 7 days to avoid duplicates from older history
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sinceDate = sevenDaysAgo.toISOString().split('T')[0];
+    
+    const commits = execSync(
+      `git log --since="${sinceDate}" --pretty=format:"%H|||%s|||%ad" --date=format:"%Y-%m-%d %H:%M"`, 
+      {
+        encoding: 'utf-8',
+        cwd: path.join(__dirname, '..')
+      }
+    ).split('\n').filter(Boolean);
     
     return commits.map(commit => {
-      const [message, datetime] = commit.split('|||');
+      const [hash, message, datetime] = commit.split('|||');
       const [date, time] = datetime.split(' ');
-      return { message, date, time };
+      return { hash, message, date, time };
     });
   } catch (error) {
     console.warn('Could not fetch git commits:', error.message);
@@ -118,22 +126,35 @@ function createBuildLogEntry() {
 }
 
 function createLogEntriesFromCommits() {
-  const commits = getRecentGitCommits(3);
+  const commits = getRecentGitCommits(20);
   
   return commits.map(commit => {
     const type = detectChangeType(commit.message);
+    
+    // Extract more detailed description from commit message
+    let description = commit.message;
+    let details = [];
+    
+    // If commit message has multiple lines or detailed info
+    if (commit.message.includes('\n')) {
+      const lines = commit.message.split('\n').filter(Boolean);
+      description = lines[0];
+      details = lines.slice(1).map(line => line.trim()).filter(Boolean);
+    }
+    
     return {
+      hash: commit.hash,
       date: commit.date,
       time: commit.time,
       type,
-      title: commit.message,
-      description: `Committed changes: ${commit.message}`,
-      details: []
+      title: description,
+      description: `Git commit: ${description}`,
+      details
     };
   }).filter(entry => {
     // Filter out generic commit messages
-    const genericMessages = ['update', 'commit', 'merge', 'wip'];
-    return !genericMessages.some(msg => entry.title.toLowerCase() === msg);
+    const genericMessages = ['wip', 'temp', 'test'];
+    return !genericMessages.some(msg => entry.title.toLowerCase().includes(msg));
   });
 }
 
@@ -155,15 +176,22 @@ ${entry.details.map(d => `        '${d}'`).join(',\n')}
 }
 
 function checkForDuplicates(content, newEntry) {
-  // Check if an entry with same title and date already exists
-  const titleRegex = new RegExp(`title: '${newEntry.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'`, 'g');
-  const dateRegex = new RegExp(`date: '${newEntry.date}'`, 'g');
+  // Extract commit hash if present for more accurate duplicate detection
+  if (newEntry.hash) {
+    const hashPattern = `hash-${newEntry.hash.substring(0, 8)}`;
+    if (content.includes(hashPattern)) {
+      return true;
+    }
+  }
   
-  const titleMatches = (content.match(titleRegex) || []).length;
-  const dateMatches = (content.match(dateRegex) || []).length;
+  // Check if an entry with same title and date/time already exists
+  const titleEscaped = newEntry.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const titleRegex = new RegExp(`title: '${titleEscaped}'`, 'g');
+  const dateTimePattern = `date: '${newEntry.date}',\\s*time: '${newEntry.time}'`;
+  const dateTimeRegex = new RegExp(dateTimePattern);
   
-  // If there are multiple entries with same title today, it's likely a duplicate from testing
-  if (titleMatches > 0 && dateMatches > 3) {
+  // If exact same title and timestamp exists, it's a duplicate
+  if (titleRegex.test(content) && dateTimeRegex.test(content)) {
     return true;
   }
   
@@ -174,45 +202,57 @@ function updateLogFile() {
   try {
     let content = fs.readFileSync(LOG_FILE, 'utf-8');
     
-    // Create new log entry for this build
-    const buildEntry = createBuildLogEntry();
+    // Get all recent commits to add as log entries
+    const commitEntries = createLogEntriesFromCommits();
     
-    // Check for recent duplicates
-    if (checkForDuplicates(content, buildEntry)) {
-      console.log('⏭️  Skipping duplicate log entry (same build detected)');
-      console.log(`   Title: ${buildEntry.title}`);
-      console.log(`   Date: ${buildEntry.date}`);
+    if (commitEntries.length === 0) {
+      console.log('ℹ️  No new commits to add to logs');
       return true;
     }
     
-    const newEntryText = formatLogEntry(buildEntry);
+    // Filter out duplicates
+    const newEntries = commitEntries.filter(entry => !checkForDuplicates(content, entry));
+    
+    if (newEntries.length === 0) {
+      console.log('⏭️  All commits already logged (no new entries)');
+      return true;
+    }
+    
+    // Sort by date/time (newest first)
+    newEntries.sort((a, b) => {
+      const dateTimeA = `${a.date} ${a.time}`;
+      const dateTimeB = `${b.date} ${b.time}`;
+      return dateTimeB.localeCompare(dateTimeA);
+    });
+    
+    // Format all new entries
+    const formattedEntries = newEntries.map(formatLogEntry).join(',\n');
     
     // Find the logEntries array start
     const arrayStartRegex = /const logEntries: LogEntry\[\] = remoteLogs \?\? \[\s*\{/;
     const match = content.match(arrayStartRegex);
     
     if (!match) {
-      // Log not found but don't fail the build
       console.warn('⚠️  Could not find logEntries array in Log.tsx - skipping log update');
       return true;
     }
     
-    // Insert new entry at the beginning of the array
+    // Insert new entries at the beginning of the array
     const insertPoint = match.index + match[0].length;
     const beforeInsert = content.substring(0, match.index);
     const afterArrayStart = content.substring(insertPoint);
     
-    // Remove the opening brace from the match since we'll add it with the new entry
+    // Remove the opening brace from the match since we'll add it with the new entries
     const arrayDeclaration = match[0].replace(/\{$/, '');
     
-    content = beforeInsert + arrayDeclaration + '\n' + newEntryText + ',\n    {' + afterArrayStart;
+    content = beforeInsert + arrayDeclaration + '\n' + formattedEntries + ',\n    {' + afterArrayStart;
     
     fs.writeFileSync(LOG_FILE, content, 'utf-8');
     
-    console.log('✅ Log entry added successfully!');
-    console.log(`   Date: ${buildEntry.date} at ${buildEntry.time}`);
-    console.log(`   Type: ${buildEntry.type}`);
-    console.log(`   Title: ${buildEntry.title}`);
+    console.log(`✅ ${newEntries.length} log ${newEntries.length === 1 ? 'entry' : 'entries'} added successfully!`);
+    newEntries.forEach(entry => {
+      console.log(`   • ${entry.date} ${entry.time} - ${entry.title}`);
+    });
     
     return true;
   } catch (error) {
