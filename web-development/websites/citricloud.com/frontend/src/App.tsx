@@ -346,6 +346,32 @@ const LoadingScreen = () => (
   </div>
 );
 
+// Error fallback component for lazy loading failures
+const LazyLoadError = ({ error }: { error?: Error }) => {
+  console.error('Lazy load error:', error);
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-red-100">
+      <div className="glass-card p-8 rounded-3xl max-w-md">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Page Load Error</h2>
+        <p className="text-gray-700 mb-4">
+          Failed to load the page component. This might be a routing or import issue.
+        </p>
+        {error && (
+          <pre className="text-xs bg-gray-100 p-4 rounded overflow-auto max-h-40 mb-4">
+            {error.message}
+          </pre>
+        )}
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        >
+          Reload Page
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const LoginRedirect = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   React.useEffect(() => {
     if (window.location.hostname !== 'my.citricloud.com') {
@@ -471,7 +497,13 @@ function App() {
             <Routes>
               <Route path="/debug-test" element={<div style={{background:'orange',color:'black',padding:24,fontWeight:'bold',fontSize:28}}>DEBUG: /debug-test route is rendering!</div>} />
               {/* Public routes */}
-              <Route path="/" element={<SubdomainRouter />} />
+              <Route path="/" element={
+                <ErrorBoundary>
+                  <Suspense fallback={<LoadingScreen />}>
+                    <SubdomainRouter />
+                  </Suspense>
+                </ErrorBoundary>
+              } />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/services" element={<ServicesPage />} />
               {/* Service detail pages */}

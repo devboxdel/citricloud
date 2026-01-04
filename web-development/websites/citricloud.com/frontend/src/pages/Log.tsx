@@ -17,7 +17,9 @@ interface LogEntry {
 
 export default function LogPage() {
   const { t } = useLanguage();
+  const [viewMode, setViewMode] = useState<'logs' | 'stats'>('logs'); // New: toggle between logs and stats view
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedSource, setSelectedSource] = useState<string>('all'); // New: filter by source
   const [currentMonth, setCurrentMonth] = useState(new Date()); // Current month
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -28,6 +30,12 @@ export default function LogPage() {
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
   const [refreshInterval, setRefreshInterval] = useState<number>(30000); // 30 seconds for real-time git commit updates
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  
+  // Stats view date/time filters
+  const [statsDateRange, setStatsDateRange] = useState<'all' | 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'>('all');
+  const [statsStartDate, setStatsStartDate] = useState<string>('');
+  const [statsEndDate, setStatsEndDate] = useState<string>('');
+  const [statsTimeFilter, setStatsTimeFilter] = useState<string>('all'); // all, morning, afternoon, evening, night
 
   const [remoteLogs, setRemoteLogs] = useState<LogEntry[] | null>(null);
 
@@ -93,6 +101,14 @@ export default function LogPage() {
   // Auto-generated log entries from git commits (do not manually edit this array)
   const logEntries: LogEntry[] = [
     
+    
+    { // bd2701d8
+      date: '2026-01-04',
+      time: '13:49',
+      type: 'fix',
+      title: 'Fixed navigation bug',
+      description: 'Git commit: Fixed navigation bug'
+    },
     { // 52a3a84b
       date: '2026-01-03',
       time: '20:32',
@@ -2186,12 +2202,38 @@ export default function LogPage() {
     }
   };
 
+  // Helper function for ISO week calculation - must be defined before useMemo hooks
+  const getISOWeek = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  };
+
   const filteredEntries = useMemo(() => {
     let filtered = [...allLogEntries];
     
     // Filter by selected date
     if (selectedDate) {
       filtered = filtered.filter(entry => entry.date === selectedDate);
+    }
+    
+    // Filter by source (GitHub commits vs manual changes)
+    if (selectedSource !== 'all') {
+      if (selectedSource === 'commits') {
+        // GitHub commits have "Git commit:" in description
+        filtered = filtered.filter(entry => 
+          entry.description.includes('Git commit:') || 
+          entry.title.includes('Git commit:')
+        );
+      } else if (selectedSource === 'changes') {
+        // Manual changes don't have "Git commit:" in description
+        filtered = filtered.filter(entry => 
+          !entry.description.includes('Git commit:') && 
+          !entry.title.includes('Git commit:')
+        );
+      }
     }
     
     if (selectedType !== 'all') {
@@ -2213,7 +2255,222 @@ export default function LogPage() {
     });
     
     return filtered;
-  }, [allLogEntries, selectedType, searchQuery, selectedDate, sortOrder]);
+  }, [allLogEntries, selectedType, selectedSource, searchQuery, selectedDate, sortOrder]);
+
+  // Calculate comprehensive statistics based on filtered data
+  const logStats = useMemo(() => {
+    // Apply stats-specific date and time filters
+    let dataToAnalyze = filteredEntries;
+    
+    if (viewMode === 'stats') {
+      const now = new Date();
+      
+      // Apply date range filter
+      if (statsDateRange !== 'all') {
+        dataToAnalyze = dataToAnalyze.filter(entry => {
+          const entryDate = new Date(entry.date);
+          
+          switch (statsDateRange) {
+            case 'today':
+              return entry.date === formatLocalDate(now);
+            case 'week':
+              const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+              return entryDate >= weekAgo;
+            case 'month':
+              const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+              return entryDate >= monthAgo;
+            case 'quarter':
+              const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+              return entryDate >= quarterAgo;
+            case 'year':
+              const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+              return entryDate >= yearAgo;
+            case 'custom':
+              if (statsStartDate && statsEndDate) {
+                const start = new Date(statsStartDate);
+                const end = new Date(statsEndDate);
+                return entryDate >= start && entryDate <= end;
+              }
+              return true;
+            default:
+              return true;
+          }
+        });
+      }
+      
+      // Apply time filter
+      if (statsTimeFilter !== 'all') {
+        dataToAnalyze = dataToAnalyze.filter(entry => {
+          if (!entry.time) return false;
+          const hour = parseInt(entry.time.split(':')[0]);
+          
+          switch (statsTimeFilter) {
+            case 'morning': // 6am - 12pm
+              return hour >= 6 && hour < 12;
+            case 'afternoon': // 12pm - 6pm
+              return hour >= 12 && hour < 18;
+            case 'evening': // 6pm - 10pm
+              return hour >= 18 && hour < 22;
+            case 'night': // 10pm - 6am
+              return hour >= 22 || hour < 6;
+            default:
+              return true;
+          }
+        });
+      }
+    }
+    const stats = {
+      total: dataToAnalyze.length,
+      totalUnfiltered: allLogEntries.length,
+      byType: {
+        feature: dataToAnalyze.filter(e => e.type === 'feature').length,
+        fix: dataToAnalyze.filter(e => e.type === 'fix').length,
+        improvement: dataToAnalyze.filter(e => e.type === 'improvement').length,
+        update: dataToAnalyze.filter(e => e.type === 'update').length,
+        change: dataToAnalyze.filter(e => e.type === 'change').length,
+        deleted: dataToAnalyze.filter(e => e.type === 'deleted').length,
+        optimized: dataToAnalyze.filter(e => e.type === 'optimized').length,
+      },
+      bySource: {
+        commits: dataToAnalyze.filter(e => e.description.includes('Git commit:') || e.title.includes('Git commit:')).length,
+        manual: dataToAnalyze.filter(e => !e.description.includes('Git commit:') && !e.title.includes('Git commit:')).length,
+      },
+      timeline: {} as Record<string, number>,
+      monthlyActivity: {} as Record<string, number>,
+      weeklyActivity: {} as Record<string, number>,
+      yearlyActivity: {} as Record<string, number>,
+      dayOfWeekActivity: {} as Record<string, number>,
+      hourlyActivity: {} as Record<string, number>,
+      averagePerDay: 0,
+      averagePerWeek: 0,
+      averagePerMonth: 0,
+      mostActiveDay: { date: '', count: 0 },
+      mostActiveMonth: { month: '', count: 0 },
+      mostActiveHour: { hour: '', count: 0 },
+      leastActiveDay: { date: '', count: Infinity },
+      recentActivity: [] as { date: string; count: number }[],
+      last7Days: 0,
+      last30Days: 0,
+      last90Days: 0,
+      thisMonth: 0,
+      lastMonth: 0,
+      thisYear: 0,
+      streak: { current: 0, longest: 0 },
+    };
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthKey = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}`;
+    const thisYearKey = String(now.getFullYear());
+
+    // Calculate timeline and various time-based activities
+    dataToAnalyze.forEach(entry => {
+      const date = entry.date;
+      const entryDate = new Date(date);
+      
+      // Daily timeline
+      stats.timeline[date] = (stats.timeline[date] || 0) + 1;
+      
+      // Monthly activity
+      const monthKey = date.substring(0, 7); // YYYY-MM
+      stats.monthlyActivity[monthKey] = (stats.monthlyActivity[monthKey] || 0) + 1;
+      
+      // Weekly activity (ISO week)
+      const weekNum = getISOWeek(entryDate);
+      const weekKey = `${entryDate.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+      stats.weeklyActivity[weekKey] = (stats.weeklyActivity[weekKey] || 0) + 1;
+      
+      // Yearly activity
+      const yearKey = date.substring(0, 4);
+      stats.yearlyActivity[yearKey] = (stats.yearlyActivity[yearKey] || 0) + 1;
+      
+      // Day of week activity (0 = Sunday, 6 = Saturday)
+      const dayOfWeek = entryDate.getDay();
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      stats.dayOfWeekActivity[dayNames[dayOfWeek]] = (stats.dayOfWeekActivity[dayNames[dayOfWeek]] || 0) + 1;
+      
+      // Hourly activity
+      const hour = entry.time ? entry.time.split(':')[0] : '00';
+      stats.hourlyActivity[hour] = (stats.hourlyActivity[hour] || 0) + 1;
+      
+      // Time range counters
+      if (entryDate >= sevenDaysAgo) stats.last7Days++;
+      if (entryDate >= thirtyDaysAgo) stats.last30Days++;
+      if (entryDate >= ninetyDaysAgo) stats.last90Days++;
+      if (monthKey === thisMonthKey) stats.thisMonth++;
+      if (monthKey === lastMonthKey) stats.lastMonth++;
+      if (yearKey === thisYearKey) stats.thisYear++;
+    });
+
+    // Find most active day
+    Object.entries(stats.timeline).forEach(([date, count]) => {
+      if (count > stats.mostActiveDay.count) {
+        stats.mostActiveDay = { date, count };
+      }
+      if (count < stats.leastActiveDay.count && count > 0) {
+        stats.leastActiveDay = { date, count };
+      }
+    });
+
+    // Find most active month
+    Object.entries(stats.monthlyActivity).forEach(([month, count]) => {
+      if (count > stats.mostActiveMonth.count) {
+        stats.mostActiveMonth = { month, count };
+      }
+    });
+
+    // Find most active hour
+    Object.entries(stats.hourlyActivity).forEach(([hour, count]) => {
+      if (count > stats.mostActiveHour.count) {
+        stats.mostActiveHour = { hour, count };
+      }
+    });
+
+    // Calculate averages
+    const daysWithActivity = Object.keys(stats.timeline).length;
+    const weeksWithActivity = Object.keys(stats.weeklyActivity).length;
+    const monthsWithActivity = Object.keys(stats.monthlyActivity).length;
+    stats.averagePerDay = daysWithActivity > 0 ? stats.total / daysWithActivity : 0;
+    stats.averagePerWeek = weeksWithActivity > 0 ? stats.total / weeksWithActivity : 0;
+    stats.averagePerMonth = monthsWithActivity > 0 ? stats.total / monthsWithActivity : 0;
+
+    // Calculate streaks
+    const sortedDates = Object.keys(stats.timeline).sort();
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let lastDate: Date | null = null;
+
+    sortedDates.forEach(dateStr => {
+      const currentDate = new Date(dateStr);
+      if (lastDate) {
+        const dayDiff = Math.floor((currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (dayDiff === 1) {
+          currentStreak++;
+        } else {
+          longestStreak = Math.max(longestStreak, currentStreak);
+          currentStreak = 1;
+        }
+      } else {
+        currentStreak = 1;
+      }
+      lastDate = currentDate;
+    });
+    longestStreak = Math.max(longestStreak, currentStreak);
+    stats.streak = { current: currentStreak, longest: longestStreak };
+
+    // Get recent 30 days activity
+    const last30Days = Object.entries(stats.timeline)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .slice(0, 30)
+      .map(([date, count]) => ({ date, count }));
+    stats.recentActivity = last30Days;
+
+    return stats;
+  }, [filteredEntries, viewMode, statsDateRange, statsStartDate, statsEndDate, statsTimeFilter]);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -2250,7 +2507,7 @@ export default function LogPage() {
   const getEntriesForDate = (date: Date | null) => {
     if (!date) return [];
     const dateStr = formatLocalDate(date);
-    return logEntries.filter(entry => entry.date === dateStr);
+    return allLogEntries.filter(entry => entry.date === dateStr);
   };
 
   // Navigate months
@@ -2310,32 +2567,64 @@ export default function LogPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-4 sm:mb-6 lg:mb-8"
           >
-            <h1 className="text-5xl font-bold text-gray-800 dark:text-gray-100 mb-4">
-              Development Logs
-            </h1>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-5xl font-bold text-gray-800 dark:text-gray-100">
+                Development Logs
+              </h1>
+              {/* View Toggle */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setViewMode('logs')}
+                  className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    viewMode === 'logs'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                      : 'glass-card hover:shadow-lg hover:scale-105'
+                  }`}
+                >
+                  📋 Logs
+                </button>
+                <button
+                  onClick={() => setViewMode('stats')}
+                  className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    viewMode === 'stats'
+                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'glass-card hover:shadow-lg hover:scale-105'
+                  }`}
+                >
+                  📊 Stats
+                </button>
+              </div>
+            </div>
             <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">
-              Real-time tracking of all changes, implementations, fixes, and improvements
+              {viewMode === 'logs' 
+                ? 'Real-time tracking of all changes, implementations, fixes, and improvements'
+                : 'Comprehensive analytics and insights into development activity'}
             </p>
           </motion.div>
 
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-6"
-          >
-            <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search logs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl glass-card focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-100"
-              />
-            </div>
-          </motion.div>
+          {/* Conditional content based on view mode */}
+          {viewMode === 'logs' ? (
+            <>
+              {/* Stats placeholder so it loads when switching */}
+              <div style={{ display: 'none' }}>{JSON.stringify(logStats)}</div>
+              {/* Search Bar */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="mb-6"
+              >
+                <div className="relative">
+                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search logs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl glass-card focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </motion.div>
 
           {/* Auto-refresh Controls */}
           <motion.div
@@ -2384,26 +2673,66 @@ export default function LogPage() {
             </div>
           </motion.div>
 
-          {/* Filter Buttons */}
+          {/* Source Filter (GitHub Commits vs Changes) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.14 }}
+            className="mb-4"
+          >
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Source</h3>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: 'all', label: 'All', icon: '📋' },
+                { value: 'commits', label: 'GitHub Commits', icon: '🔗' },
+                { value: 'changes', label: 'Manual Changes', icon: '✏️' }
+              ].map((source) => (
+                <button
+                  key={source.value}
+                  onClick={() => setSelectedSource(source.value)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    selectedSource === source.value
+                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
+                      : 'glass-card hover:shadow-lg hover:scale-105'
+                  }`}
+                >
+                  <span>{source.icon}</span>
+                  <span>{source.label}</span>
+                  {selectedSource === source.value && (
+                    <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">
+                      {source.value === 'all' ? allLogEntries.length : 
+                       source.value === 'commits' ? allLogEntries.filter(e => e.description.includes('Git commit:') || e.title.includes('Git commit:')).length :
+                       allLogEntries.filter(e => !e.description.includes('Git commit:') && !e.title.includes('Git commit:')).length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Type Filter Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="flex flex-wrap gap-2 justify-start mb-4 sm:mb-6 lg:mb-8"
+            className="mb-4"
           >
-            {['all', 'feature', 'fix', 'improvement', 'update', 'change', 'deleted', 'optimized'].map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  selectedType === type
-                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                    : 'glass-card hover:shadow-lg'
-                }`}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Type</h3>
+            <div className="flex flex-wrap gap-2">
+              {['all', 'feature', 'fix', 'improvement', 'update', 'change', 'deleted', 'optimized'].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setSelectedType(type)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    selectedType === type
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                      : 'glass-card hover:shadow-lg'
+                  }`}
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           {/* Stats */}
@@ -2536,22 +2865,22 @@ export default function LogPage() {
                 >
                   <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3">Statistics</h3>
                   {[
-                    { label: 'Features', count: logEntries.filter(e => e.type === 'feature').length, color: 'bg-blue-500' },
-                    { label: 'Fixes', count: logEntries.filter(e => e.type === 'fix').length, color: 'bg-red-500' },
-                    { label: 'Improvements', count: logEntries.filter(e => e.type === 'improvement').length, color: 'bg-green-500' },
-                    { label: 'Updates', count: logEntries.filter(e => e.type === 'update').length, color: 'bg-purple-500' },
-                    { label: 'Changes', count: logEntries.filter(e => e.type === 'change').length, color: 'bg-orange-500' },
-                    { label: 'Deleted', count: logEntries.filter(e => e.type === 'deleted').length, color: 'bg-gray-500' },
-                    { label: 'Optimized', count: logEntries.filter(e => e.type === 'optimized').length, color: 'bg-cyan-500' }
+                    { label: 'Features', count: allLogEntries.filter(e => e.type === 'feature').length, color: 'bg-blue-500' },
+                    { label: 'Fixes', count: allLogEntries.filter(e => e.type === 'fix').length, color: 'bg-red-500' },
+                    { label: 'Improvements', count: allLogEntries.filter(e => e.type === 'improvement').length, color: 'bg-green-500' },
+                    { label: 'Updates', count: allLogEntries.filter(e => e.type === 'update').length, color: 'bg-purple-500' },
+                    { label: 'Changes', count: allLogEntries.filter(e => e.type === 'change').length, color: 'bg-orange-500' },
+                    { label: 'Deleted', count: allLogEntries.filter(e => e.type === 'deleted').length, color: 'bg-gray-500' },
+                    { label: 'Optimized', count: allLogEntries.filter(e => e.type === 'optimized').length, color: 'bg-cyan-500' }
                   ].map((stat) => {
                     const maxCount = Math.max(...[
-                      logEntries.filter(e => e.type === 'feature').length,
-                      logEntries.filter(e => e.type === 'fix').length,
-                      logEntries.filter(e => e.type === 'improvement').length,
-                      logEntries.filter(e => e.type === 'update').length,
-                      logEntries.filter(e => e.type === 'change').length,
-                      logEntries.filter(e => e.type === 'deleted').length,
-                      logEntries.filter(e => e.type === 'optimized').length
+                      allLogEntries.filter(e => e.type === 'feature').length,
+                      allLogEntries.filter(e => e.type === 'fix').length,
+                      allLogEntries.filter(e => e.type === 'improvement').length,
+                      allLogEntries.filter(e => e.type === 'update').length,
+                      allLogEntries.filter(e => e.type === 'change').length,
+                      allLogEntries.filter(e => e.type === 'deleted').length,
+                      allLogEntries.filter(e => e.type === 'optimized').length
                     ]);
                     const percentage = maxCount > 0 ? (stat.count / maxCount) * 100 : 0;
                     
@@ -2666,6 +2995,592 @@ export default function LogPage() {
               )}
             </motion.div>
           </div>
+            </>
+          ) : (
+            /* Stats View */
+            <div className="space-y-6">
+              {/* Filters for Stats */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>🔍</span> Filter Statistics
+                </h3>
+                
+                {/* Source Filter */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Source</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: 'all', label: 'All', icon: '📋' },
+                      { value: 'commits', label: 'GitHub Commits', icon: '🔗' },
+                      { value: 'changes', label: 'Manual Changes', icon: '✏️' }
+                    ].map((source) => (
+                      <button
+                        key={source.value}
+                        onClick={() => setSelectedSource(source.value)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                          selectedSource === source.value
+                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
+                            : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg hover:scale-105'
+                        }`}
+                      >
+                        <span>{source.icon}</span>
+                        <span>{source.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Type Filter */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Type</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['all', 'feature', 'fix', 'improvement', 'update', 'change', 'deleted', 'optimized'].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setSelectedType(type)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          selectedType === type
+                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                            : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg'
+                        }`}
+                      >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Date & Time Filters */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>🗓️</span> Date & Time Filters
+                </h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Date Range Filter */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Date Range</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'all', label: 'All Time', icon: '🌐' },
+                        { value: 'today', label: 'Today', icon: '📅' },
+                        { value: 'week', label: 'Last 7 Days', icon: '📆' },
+                        { value: 'month', label: 'Last 30 Days', icon: '📊' },
+                        { value: 'quarter', label: 'Last 90 Days', icon: '📈' },
+                        { value: 'year', label: 'Last Year', icon: '🗓️' },
+                        { value: 'custom', label: 'Custom', icon: '⚙️' },
+                      ].map((range) => (
+                        <button
+                          key={range.value}
+                          onClick={() => setStatsDateRange(range.value as any)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                            statsDateRange === range.value
+                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                              : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg hover:scale-105'
+                          }`}
+                        >
+                          <span>{range.icon}</span>
+                          <span>{range.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Custom Date Range Inputs */}
+                    {statsDateRange === 'custom' && (
+                      <div className="grid grid-cols-2 gap-3 mt-4 p-4 bg-white/30 dark:bg-gray-800/30 rounded-lg">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={statsStartDate}
+                            onChange={(e) => setStatsStartDate(e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={statsEndDate}
+                            onChange={(e) => setStatsEndDate(e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Time of Day Filter */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Time of Day</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'all', label: 'All Day', icon: '🌍', time: '' },
+                        { value: 'morning', label: 'Morning', icon: '🌅', time: '6am-12pm' },
+                        { value: 'afternoon', label: 'Afternoon', icon: '☀️', time: '12pm-6pm' },
+                        { value: 'evening', label: 'Evening', icon: '🌆', time: '6pm-10pm' },
+                        { value: 'night', label: 'Night', icon: '🌙', time: '10pm-6am' },
+                      ].map((time) => (
+                        <button
+                          key={time.value}
+                          onClick={() => setStatsTimeFilter(time.value)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex flex-col items-center gap-1 min-w-[90px] ${
+                            statsTimeFilter === time.value
+                              ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30'
+                              : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg hover:scale-105'
+                          }`}
+                        >
+                          <span className="text-xl">{time.icon}</span>
+                          <span>{time.label}</span>
+                          {time.time && (
+                            <span className="text-[10px] opacity-75">{time.time}</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Active Filters Summary & Reset */}
+                <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Showing <span className="font-bold text-gray-800 dark:text-gray-100">{logStats.total}</span> of <span className="font-bold text-gray-800 dark:text-gray-100">{logStats.totalUnfiltered}</span> entries
+                      </span>
+                      {logStats.total !== logStats.totalUnfiltered && (
+                        <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full font-medium">
+                          Filtered
+                        </span>
+                      )}
+                    </div>
+                    {(statsDateRange !== 'all' || statsTimeFilter !== 'all' || selectedType !== 'all' || selectedSource !== 'all') && (
+                      <button
+                        onClick={() => {
+                          setStatsDateRange('all');
+                          setStatsTimeFilter('all');
+                          setStatsStartDate('');
+                          setStatsEndDate('');
+                          setSelectedType('all');
+                          setSelectedSource('all');
+                        }}
+                        className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+                      >
+                        <span>🔄</span>
+                        <span>Reset All Filters</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+                      >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Active Filters Info */}
+                {(selectedSource !== 'all' || selectedType !== 'all') && (
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <span className="font-semibold">Filtered:</span> Showing {logStats.total} of {logStats.totalUnfiltered} entries
+                      {selectedSource !== 'all' && ` • Source: ${selectedSource}`}
+                      {selectedType !== 'all' && ` • Type: ${selectedType}`}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSelectedSource('all');
+                        setSelectedType('all');
+                      }}
+                      className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                    >
+                      Clear all filters
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Overview Cards */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              >
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Entries</span>
+                    <span className="text-3xl">📊</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.total}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    {selectedSource === 'all' && selectedType === 'all' ? 'All time' : 'Filtered results'}
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Last 7 Days</span>
+                    <span className="text-3xl">📅</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.last7Days}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    Avg {(logStats.last7Days / 7).toFixed(1)} per day
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</span>
+                    <span className="text-3xl">📆</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.thisMonth}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    {logStats.lastMonth > 0 && (
+                      <span className={logStats.thisMonth > logStats.lastMonth ? 'text-green-600' : 'text-red-600'}>
+                        {logStats.thisMonth > logStats.lastMonth ? '↑' : '↓'} {Math.abs(logStats.thisMonth - logStats.lastMonth)} vs last month
+                      </span>
+                    )}
+                    {logStats.lastMonth === 0 && 'Current month'}
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Per Day</span>
+                    <span className="text-3xl">📈</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.averagePerDay.toFixed(1)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">On active days</p>
+                </div>
+              </motion.div>
+
+              {/* Source and Streaks */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+              >
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">GitHub Commits</span>
+                    <span className="text-3xl">🔗</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.bySource.commits}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    {logStats.total > 0 ? ((logStats.bySource.commits / logStats.total) * 100).toFixed(1) : 0}% of total
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Manual Changes</span>
+                    <span className="text-3xl">✏️</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.bySource.manual}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    {logStats.total > 0 ? ((logStats.bySource.manual / logStats.total) * 100).toFixed(1) : 0}% of total
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Longest Streak</span>
+                    <span className="text-3xl">🔥</span>
+                  </div>
+                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.streak.longest}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    consecutive days • Current: {logStats.streak.current}
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Time Period Comparison */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>⏰</span> Time Period Analysis
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Last 7 Days</p>
+                    <p className="text-3xl font-bold text-blue-600">{logStats.last7Days}</p>
+                  </div>
+                  <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Last 30 Days</p>
+                    <p className="text-3xl font-bold text-green-600">{logStats.last30Days}</p>
+                  </div>
+                  <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Last 90 Days</p>
+                    <p className="text-3xl font-bold text-purple-600">{logStats.last90Days}</p>
+                  </div>
+                  <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">This Year</p>
+                    <p className="text-3xl font-bold text-orange-600">{logStats.thisYear}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Day of Week Activity */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>📅</span> Activity by Day of Week
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => {
+                    const count = logStats.dayOfWeekActivity[day] || 0;
+                    const maxDayCount = Math.max(...Object.values(logStats.dayOfWeekActivity));
+                    const percentage = maxDayCount > 0 ? (count / maxDayCount) * 100 : 0;
+                    return (
+                      <div key={day} className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 text-center">
+                        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">{day.slice(0, 3)}</p>
+                        <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">{count}</p>
+                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Hourly Activity */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>🕐</span> Activity by Hour of Day
+                </h3>
+                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const hour = String(i).padStart(2, '0');
+                    const count = logStats.hourlyActivity[hour] || 0;
+                    const maxHourCount = Math.max(...Object.values(logStats.hourlyActivity));
+                    const percentage = maxHourCount > 0 ? (count / maxHourCount) * 100 : 0;
+                    return (
+                      <div key={hour} className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 text-center">
+                        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{hour}:00</p>
+                        <p className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">{count}</p>
+                        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Type Distribution */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>📊</span> Entry Type Distribution
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {[
+                    { type: 'feature', label: 'Features', icon: '✨', color: 'bg-gradient-to-r from-blue-500 to-blue-600' },
+                    { type: 'fix', label: 'Fixes', icon: '🔧', color: 'bg-gradient-to-r from-red-500 to-red-600' },
+                    { type: 'improvement', label: 'Improvements', icon: '⚡', color: 'bg-gradient-to-r from-yellow-500 to-yellow-600' },
+                    { type: 'update', label: 'Updates', icon: '🔄', color: 'bg-gradient-to-r from-green-500 to-green-600' },
+                    { type: 'change', label: 'Changes', icon: '📝', color: 'bg-gradient-to-r from-purple-500 to-purple-600' },
+                    { type: 'deleted', label: 'Deletions', icon: '🗑️', color: 'bg-gradient-to-r from-gray-500 to-gray-600' },
+                    { type: 'optimized', label: 'Optimizations', icon: '⚙️', color: 'bg-gradient-to-r from-cyan-500 to-cyan-600' },
+                  ].map((item) => {
+                    const count = logStats.byType[item.type as keyof typeof logStats.byType];
+                    const percentage = logStats.total > 0 ? (count / logStats.total) * 100 : 0;
+                    return (
+                      <div key={item.type} className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-2xl">{item.icon}</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500">{percentage.toFixed(1)}%</p>
+                          </div>
+                          <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{count}</p>
+                        </div>
+                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${item.color} transition-all duration-500`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Performance Metrics */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+              >
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <span>🏆</span> Most Active Day
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                        {logStats.mostActiveDay.date ? formatDisplayDate(logStats.mostActiveDay.date) : 'N/A'}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {logStats.mostActiveDay.count} entries
+                      </p>
+                    </div>
+                    <div className="text-5xl">🎯</div>
+                  </div>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <span>📆</span> Most Active Month
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                        {logStats.mostActiveMonth.month ? (() => {
+                          const [year, month] = logStats.mostActiveMonth.month.split('-');
+                          return new Date(parseInt(year), parseInt(month) - 1, 1).toLocaleDateString('en', { month: 'short', year: 'numeric' });
+                        })() : 'N/A'}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {logStats.mostActiveMonth.count} entries
+                      </p>
+                    </div>
+                    <div className="text-5xl">📅</div>
+                  </div>
+                </div>
+
+                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <span>🕐</span> Peak Hour
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                        {logStats.mostActiveHour.hour ? `${logStats.mostActiveHour.hour}:00` : 'N/A'}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {logStats.mostActiveHour.count} entries
+                      </p>
+                    </div>
+                    <div className="text-5xl">⏰</div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Recent 30 Days Activity */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>📅</span> Recent Activity (Last 30 Days)
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {logStats.recentActivity.slice(0, 30).map((day, index) => (
+                    <div
+                      key={index}
+                      className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 hover:shadow-lg transition-all"
+                    >
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                        {formatDisplayDate(day.date)}
+                      </p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{day.count}</p>
+                      <div className="mt-2 flex gap-0.5">
+                        {Array.from({ length: Math.min(day.count, 5) }).map((_, i) => (
+                          <div key={i} className="w-1.5 h-3 bg-blue-500 rounded-full" />
+                        ))}
+                        {day.count > 5 && <span className="text-xs text-gray-500">+</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Monthly Activity */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="glass-card rounded-xl p-6"
+              >
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <span>📊</span> Monthly Activity Overview
+                </h3>
+                <div className="space-y-3">
+                  {Object.entries(logStats.monthlyActivity)
+                    .sort(([a], [b]) => b.localeCompare(a))
+                    .slice(0, 12)
+                    .map(([month, count]) => {
+                      const maxMonthly = Math.max(...Object.values(logStats.monthlyActivity));
+                      const percentage = (count / maxMonthly) * 100;
+                      const [year, monthNum] = month.split('-');
+                      const monthName = new Date(parseInt(year), parseInt(monthNum) - 1, 1).toLocaleDateString('en', { month: 'long', year: 'numeric' });
+                      
+                      return (
+                        <div key={month} className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{monthName}</span>
+                            <span className="text-lg font-bold text-gray-800 dark:text-gray-100">{count} entries</span>
+                          </div>
+                          <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </motion.div>
+            </div>
+          )}
         </section>
       </main>
 
