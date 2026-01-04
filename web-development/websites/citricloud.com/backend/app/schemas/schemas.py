@@ -254,7 +254,7 @@ class OrderResponse(BaseSchema):
     status: OrderStatusEnum
     total_amount: float
     currency: str
-    shipping_address: Dict[str, Any]
+    shipping_address: Optional[Dict[str, Any]] = None
     billing_address: Optional[Dict[str, Any]] = None
     notes: Optional[str] = None
     created_at: datetime
