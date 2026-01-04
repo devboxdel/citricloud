@@ -106,6 +106,30 @@ export default function LogPage() {
     
     
     
+    
+    
+    
+    { // 54b3ccc8
+      date: '2026-01-04',
+      time: '16:08',
+      type: 'fix',
+      title: 'Fix OrderResponse schema - make shipping_address optional',
+      description: 'Git commit: Fix OrderResponse schema - make shipping_address optional'
+    },
+    { // 9a278e80
+      date: '2026-01-04',
+      time: '16:04',
+      type: 'fix',
+      title: 'Fix all ERP order and invoice endpoints - remove selectinload for User relations',
+      description: 'Git commit: Fix all ERP order and invoice endpoints - remove selectinload for User relations'
+    },
+    { // a4e88f22
+      date: '2026-01-04',
+      time: '16:02',
+      type: 'fix',
+      title: 'Fix 500 error on profile orders endpoint',
+      description: 'Git commit: Fix 500 error on profile orders endpoint'
+    },
     { // f10e8bcb
       date: '2026-01-04',
       time: '15:01',
@@ -3219,33 +3243,6 @@ export default function LogPage() {
                     )}
                   </div>
                 </div>
-              </motion.div>
-                      >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Active Filters Info */}
-                {(selectedSource !== 'all' || selectedType !== 'all') && (
-                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
-                      <span className="font-semibold">Filtered:</span> Showing {logStats.total} of {logStats.totalUnfiltered} entries
-                      {selectedSource !== 'all' && ` • Source: ${selectedSource}`}
-                      {selectedType !== 'all' && ` • Type: ${selectedType}`}
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSelectedSource('all');
-                        setSelectedType('all');
-                      }}
-                      className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                    >
-                      Clear all filters
-                    </button>
-                  </div>
-                )}
               </motion.div>
 
               {/* Overview Cards */}
