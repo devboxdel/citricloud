@@ -104,6 +104,14 @@ export default function LogPage() {
     
     
     
+    
+    { // 2d01d50a
+      date: '2026-01-04',
+      time: '15:01',
+      type: 'feature',
+      title: 'Add GitHub releases modal to version display in footer',
+      description: 'Git commit: Add GitHub releases modal to version display in footer'
+    },
     { // 9ec70574
       date: '2026-01-04',
       time: '14:37',
