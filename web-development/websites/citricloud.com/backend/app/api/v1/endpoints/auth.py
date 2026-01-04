@@ -92,15 +92,20 @@ async def get_user_orders(
     )
     total = count_result.scalar() or 0
     
-    # Get paginated orders
-    query = select(Order).options(selectinload(Order.order_items)).where(Order.user_id == current_user.id)
+    # Get paginated orders - removed selectinload to avoid role type mismatch
+    query = select(Order).where(Order.user_id == current_user.id)
     query = query.order_by(Order.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
     result = await db.execute(query)
     orders = result.scalars().all()
-    order_items = [OrderResponse.model_validate(order) for order in orders]
+    
+    # Manually load order_items for each order
+    order_responses = []
+    for order in orders:
+        await db.refresh(order, ['order_items'])
+        order_responses.append(OrderResponse.model_validate(order))
     
     return {
-        "items": order_items,
+        "items": order_responses,
         "total": total,
         "page": page,
         "page_size": page_size,
