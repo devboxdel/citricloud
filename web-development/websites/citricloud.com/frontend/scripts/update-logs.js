@@ -232,7 +232,7 @@ function updateLogFile() {
     const formattedEntries = newEntries.map(formatLogEntry).join(',\n');
     
     // Find the logEntries array start
-    const arrayStartRegex = /const logEntries: LogEntry\[\] = remoteLogs \?\? \[\s*\{/;
+    const arrayStartRegex = /const logEntries: LogEntry\[\] = \[\s*\{/;
     const match = content.match(arrayStartRegex);
     
     if (!match) {

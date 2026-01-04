@@ -32,6 +32,12 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    // Enable SPA fallback for client-side routing
+    historyApiFallback: {
+      rewrites: [
+        { from: /^\/api\/.*$/, to: context => context.parsedUrl.pathname },
+      ],
+    },
   },
   build: {
     rollupOptions: {
