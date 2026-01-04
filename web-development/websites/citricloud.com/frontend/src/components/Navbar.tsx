@@ -334,7 +334,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
 
   return (
     <>
-    <nav className={`fixed top-0 left-0 right-0 w-full z-50 ${
+    <nav className={`fixed top-10 left-0 right-0 w-full z-50 ${
       transparent 
         ? 'bg-transparent' 
         : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl shadow-lg border-b border-white/30 dark:border-gray-700/30'
@@ -397,7 +397,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.2 }}
                           className={item.isMegaMenu 
-                            ? "fixed left-0 right-0 top-[72px] mx-auto max-w-7xl px-4 z-[9999]" 
+                            ? "fixed left-0 right-0 top-[120px] mx-auto max-w-7xl px-4 z-[9999]" 
                             : "absolute left-0 top-full mt-2 min-w-[240px] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-[9999] overflow-hidden"
                           }
                         >

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import Topbar from '../components/Topbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
@@ -137,8 +138,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar transparent={isHeroVisible} />
-      <main>
+      <main className="pt-10">
 
       {/* Hero Section */}
       <section className="relative pt-32 sm:pt-40 pb-32 sm:pb-40 overflow-hidden min-h-[600px] sm:min-h-[700px] flex items-center">
