@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Systemd service to automatically update logs and deploy on git changes
+# Install: sudo cp this file to /etc/systemd/system/citricloud-log-watcher.service
+# Enable: sudo systemctl enable citricloud-log-watcher
+# Start: sudo systemctl start citricloud-log-watcher
+
+[Unit]
+Description=Citricloud Log Auto-Update Watcher
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend
+ExecStart=/home/ubuntu/infrastructure/cloud/web-development/websites/citricloud.com/frontend/scripts/watch-and-update-logs.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/citricloud-log-watcher.log
+StandardError=append:/var/log/citricloud-log-watcher.log
+
+[Install]
+WantedBy=multi-user.target

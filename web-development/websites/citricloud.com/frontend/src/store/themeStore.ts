@@ -2,11 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface SunTimes {
-  sunrise?: string; // ISO string
-  sunset?: string;  // ISO string
+  sunrise?: string; // timestamp (ms since epoch) as string
+  sunset?: string;  // timestamp (ms since epoch) as string
   lat?: number;
   lon?: number;
-  computedAt?: string; // ISO string
+  computedAt?: string; // timestamp (ms since epoch) as string
 }
 
 interface ThemeState {

@@ -13,20 +13,23 @@ export async function getCurrentPosition(options?: PositionOptions): Promise<Geo
 
 export function computeSunTimes(lat: number, lon: number, date: Date = new Date()): SunTimes {
   const times = SunCalc.getTimes(date, lat, lon);
+  // Store times as timestamps (ms since epoch) to avoid timezone conversion issues
   return {
-    sunrise: times.sunrise?.toISOString(),
-    sunset: times.sunset?.toISOString(),
+    sunrise: times.sunrise?.getTime().toString(),
+    sunset: times.sunset?.getTime().toString(),
     lat,
     lon,
-    computedAt: new Date().toISOString(),
+    computedAt: new Date().getTime().toString(),
   };
 }
 
 export function isDarkNow(sun: SunTimes | null, now: Date = new Date()): boolean {
   if (!sun?.sunrise || !sun?.sunset) return false;
-  const sunrise = new Date(sun.sunrise);
-  const sunset = new Date(sun.sunset);
-  return now < sunrise || now >= sunset;
+  // Parse timestamps directly to avoid timezone issues
+  const sunriseMs = parseInt(sun.sunrise, 10);
+  const sunsetMs = parseInt(sun.sunset, 10);
+  const nowMs = now.getTime();
+  return nowMs < sunriseMs || nowMs >= sunsetMs;
 }
 
 let nextSwitchTimer: number | null = null;
@@ -43,18 +46,18 @@ export function scheduleNextSwitch(sun: SunTimes | null) {
   try {
     if (!sun?.sunrise || !sun?.sunset) return;
     const now = new Date();
-    const sunrise = new Date(sun.sunrise).getTime();
-    const sunset = new Date(sun.sunset).getTime();
+    const sunriseMs = parseInt(sun.sunrise, 10);
+    const sunsetMs = parseInt(sun.sunset, 10);
     const nowMs = now.getTime();
     // Determine next boundary time in ms
     let nextMs: number;
-    if (nowMs < sunrise) nextMs = sunrise;
-    else if (nowMs < sunset) nextMs = sunset;
+    if (nowMs < sunriseMs) nextMs = sunriseMs;
+    else if (nowMs < sunsetMs) nextMs = sunsetMs;
     else {
       // After sunset: schedule for tomorrow sunrise (recompute tomorrow)
       const tomorrow = new Date(now);
       tomorrow.setDate(now.getDate() + 1);
-      nextMs = new Date(SunCalc.getTimes(tomorrow, sun.lat!, sun.lon!).sunrise).getTime();
+      nextMs = SunCalc.getTimes(tomorrow, sun.lat!, sun.lon!).sunrise.getTime();
     }
     const delay = Math.max(1000, nextMs - nowMs);
     nextSwitchTimer = window.setTimeout(() => {
@@ -76,7 +79,7 @@ export async function initThemeOnLoad() {
     
     // If no stored location or it's old (>24h), get fresh location
     const needsRefresh = !stored?.computedAt || 
-      (new Date().getTime() - new Date(stored.computedAt).getTime() > 24 * 60 * 60 * 1000);
+      (new Date().getTime() - parseInt(stored.computedAt, 10) > 24 * 60 * 60 * 1000);
     
     if (needsRefresh) {
       try {

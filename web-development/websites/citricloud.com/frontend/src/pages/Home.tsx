@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
 import { cmsAPI, shopAPI } from '../lib/api';
+import { getImageUrl, handleImageError } from '../lib/imageUtils';
 import { 
   FiLayout, FiUsers, FiFileText, FiShoppingCart, 
   FiZap, FiShield, FiCheck, FiTrendingUp, FiAward, FiGlobe, FiLock, FiClock,
@@ -28,38 +29,9 @@ const getCategoryPath = (product: any): string => {
   return category.slug;
 };
 
-  // Normalize image URLs to use current origin and append cache-busting token for /uploads/
-  const MEDIA_BUST = String(Date.now());
+  // Use the shared getImageUrl utility for consistent image URL resolution
   const resolveImageUrl = (rawUrl?: string | null) => {
-    if (!rawUrl) return null;
-
-    // Use current origin for same-origin image loading
-    const mediaBase = import.meta.env.VITE_MEDIA_BASE_URL || window.location.origin;
-    const appendBust = (full: string) => (full.includes('/uploads/') ? (full.includes('?') ? `${full}&v=${MEDIA_BUST}` : `${full}?v=${MEDIA_BUST}`) : full);
-
-    // Trim and normalize protocol
-    let url = rawUrl.trim();
-    if (url.startsWith('//')) url = `https:${url}`;
-
-    // If absolute URL
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol === 'http:') parsed.protocol = 'https:';
-
-      // If the path is /uploads, rewrite to current origin
-      if (parsed.pathname.startsWith('/uploads/')) {
-        const rebuilt = `${mediaBase}${parsed.pathname}${parsed.search}`;
-        return appendBust(rebuilt);
-      }
-      return parsed.toString();
-    } catch {
-      // Not an absolute URL; fall through to relative handling
-    }
-
-    // Relative URL; build against current origin
-    const needsLeadingSlash = url.startsWith('/') ? '' : '/';
-    const full = `${mediaBase}${needsLeadingSlash}${url}`;
-    return appendBust(full);
+    return getImageUrl(rawUrl);
   };
 
   // Pick the first available image field from the API payload
@@ -388,7 +360,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {[
               { name: 'Starter', price: '12', features: ['All 15 Workspace apps', '100GB storage per user', 'Email support', 'Mobile apps', 'Basic integrations', 'Version history (30 days)'] },
-              { name: 'Professional', price: '20', features: ['Everything in Starter', 'Unlimited storage', 'Priority support', 'Advanced integrations', 'Version history (90 days)', 'Admin console'], popular: true },
+              { name: 'Professional', price: '20', features: ['Everything in Starter', 'Unlimited storage', 'Priority support', 'Advanced integrations', 'Version history (90 days)', 'Admin console'] },
               { name: 'Enterprise', price: 'Custom', features: ['Everything in Professional', 'Dedicated account manager', '24/7 phone support', 'SLA guarantees', 'Unlimited version history', 'SSO & SAML'] },
             ].map((plan, index) => (
               <motion.div
@@ -398,17 +370,8 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -8 }}
-                className={`glass-card p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-900 border-2 ${
-                  plan.popular 
-                    ? 'border-blue-400 dark:border-blue-500 shadow-2xl shadow-blue-200 dark:shadow-blue-900/50' 
-                    : 'border-gray-200 dark:border-gray-700 shadow-lg'
-                } relative`}
+                className="glass-card rounded-2xl sm:rounded-3xl bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 shadow-lg p-6 sm:p-8 relative"
               >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </div>
-                )}
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{plan.name}</h3>
                 <div className="mb-6">
                   {plan.price === 'Custom' ? (
@@ -508,10 +471,11 @@ export default function HomePage() {
                   <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary-500 to-primary-600">
                     {post.featured_image ? (
                       <img
-                        src={post.featured_image}
+                        src={getImageUrl(post.featured_image)}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         loading="lazy"
+                        onError={(e) => handleImageError(e, 'w-full h-full object-cover')}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

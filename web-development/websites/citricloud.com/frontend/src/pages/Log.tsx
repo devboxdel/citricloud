@@ -91,7 +91,15 @@ export default function LogPage() {
   }, [staticLogs]);
 
   // Auto-generated log entries from git commits (do not manually edit this array)
-  const logEntries: LogEntry[] = remoteLogs ?? [
+  const logEntries: LogEntry[] = [
+    
+    { // 52a3a84b
+      date: '2026-01-03',
+      time: '20:32',
+      type: 'feature',
+      title: 'Add megamenu updates: Services categories, Workspace page, Contact redesign, Blog integration',
+      description: 'Git commit: Add megamenu updates: Services categories, Workspace page, Contact redesign, Blog integration'
+    },
     { // latest
       date: '2026-01-03',
       time: '19:30',
@@ -2098,6 +2106,7 @@ export default function LogPage() {
   // Merge remote + static + auto-generated so older logs stay visible even when backend returns a subset
   const allLogEntries: LogEntry[] = useMemo(() => {
     const combined = [
+      ...(Array.isArray(remoteLogs) && remoteLogs.length > 0 ? remoteLogs : []),
       ...(Array.isArray(staticLogs) ? staticLogs : []),
       ...logEntries,
     ];
@@ -2112,7 +2121,7 @@ export default function LogPage() {
       }
     }
     return deduped;
-  }, [staticLogs]);
+  }, [remoteLogs, staticLogs]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -2204,7 +2213,7 @@ export default function LogPage() {
     });
     
     return filtered;
-  }, [logEntries, selectedType, searchQuery, selectedDate, sortOrder]);
+  }, [allLogEntries, selectedType, searchQuery, selectedDate, sortOrder]);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {

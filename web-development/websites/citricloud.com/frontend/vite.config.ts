@@ -39,6 +39,7 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['framer-motion', 'react-icons'],
+          'data-vendor': ['axios', '@tanstack/react-query', 'zustand'],
         },
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
@@ -55,7 +56,11 @@ export default defineConfig({
     },
     minify: 'terser',
     terserOptions: {
-      compress: false,
+      compress: {
+        drop_console: true,  // Remove console.log in production
+        drop_debugger: true,  // Remove debugger statements
+        passes: 2,  // Run compression twice for better results
+      },
       mangle: true,
       format: {
         comments: false,
@@ -63,7 +68,7 @@ export default defineConfig({
     },
     cssMinify: true,
     reportCompressedSize: false,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,  // Lower threshold
     sourcemap: false,
   },
   optimizeDeps: {
