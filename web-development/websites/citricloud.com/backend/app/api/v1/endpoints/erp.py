@@ -41,7 +41,7 @@ async def list_orders(
     current_user: User = Depends(require_admin)
 ):
     """List orders with pagination"""
-    query = select(Order).options(selectinload(Order.order_items), selectinload(Order.user))
+    query = select(Order)
     
     if search:
         query = query.where(Order.order_number.ilike(f"%{search}%"))
@@ -100,7 +100,6 @@ async def get_order(
     """Get order by ID"""
     result = await db.execute(
         select(Order)
-        .options(selectinload(Order.order_items), selectinload(Order.user))
         .where(Order.id == order_id)
     )
     order = result.scalar_one_or_none()
@@ -119,7 +118,7 @@ async def get_my_orders(
     current_user: User = Depends(get_current_user)
 ):
     """Get current user's orders"""
-    query = select(Order).options(selectinload(Order.order_items)).where(Order.user_id == current_user.id)
+    query = select(Order).where(Order.user_id == current_user.id)
     
     count_query = select(func.count()).select_from(Order).where(Order.user_id == current_user.id)
     total_result = await db.execute(count_query)
@@ -129,8 +128,11 @@ async def get_my_orders(
     result = await db.execute(query)
     orders = result.scalars().all()
     
-    # Convert Order objects to OrderResponse schemas
-    order_responses = [OrderResponse.model_validate(order) for order in orders]
+    # Manually load order_items for each order to avoid role type mismatch
+    order_responses = []
+    for order in orders:
+        await db.refresh(order, ['order_items'])
+        order_responses.append(OrderResponse.model_validate(order))
     
     return {
         "items": order_responses,
@@ -284,7 +286,6 @@ async def update_order_status(
     """Update order status"""
     result = await db.execute(
         select(Order)
-        .options(selectinload(Order.user))
         .where(Order.id == order_id)
     )
     order = result.scalar_one_or_none()
@@ -354,10 +355,8 @@ async def list_invoices(
     current_user: User = Depends(get_current_user)
 ):
     """List invoices with pagination - users see their own, admins see all"""
-    # Load invoices with order and order's user relationship
-    query = select(Invoice).options(
-        selectinload(Invoice.order).selectinload(Order.user)
-    )
+    # Load invoices without eager loading user to avoid role type mismatch
+    query = select(Invoice).options(selectinload(Invoice.order))
     
     # Regular users can only see their own invoices (through order.user_id)
     user_role = current_user.role if isinstance(current_user.role, str) else current_user.role.value
