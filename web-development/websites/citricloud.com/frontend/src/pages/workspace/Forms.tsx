@@ -360,10 +360,15 @@ export default function FormsApp() {
       <div className="bg-purple-600 text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center gap-2">
-            <>
-              <img src="/lightmode.svg?v=8" alt="CITRICLOUD Forms" className="h-3 sm:h-4 w-auto hidden" />
-              <img src="/darkmode.svg?v=8" alt="CITRICLOUD Forms" className="h-3 sm:h-4 w-auto" />
-            </>
+            <img 
+              src="/box-white.svg" 
+              alt="CITRICLOUD" 
+              className="h-7 sm:h-8 w-auto rounded-lg"
+            />
+            <div className="flex flex-col">
+              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+            </div>
             <span className="text-white font-semibold text-sm">Forms</span>
           </div>
           {currentView === 'list' && (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiTrendingUp, FiShield, FiZap, FiCloud, FiCheck, FiUsers, FiLayout, FiAlertCircle, FiEye, FiEyeOff } from 'react-icons/fi';
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [error, setError] = useState('');
   const [requires2FA, setRequires2FA] = useState(false);
   const [tempToken, setTempToken] = useState('');
@@ -21,6 +22,16 @@ export default function LoginPage() {
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setIsDarkMode(isDark);
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,9 +176,16 @@ export default function LoginPage() {
             animate={{ opacity: 1, x: 0 }}
             className="hidden lg:block"
           >
-            <Link to="/" className="inline-flex items-center mb-8">
-              <img src="/lightmode.svg?v=8" alt="CITRICLOUD" className="h-6 w-auto dark:hidden" />
-              <img src="/darkmode.svg?v=8" alt="CITRICLOUD" className="h-6 w-auto hidden dark:inline" />
+            <Link to="/" className="inline-flex items-center gap-3 mb-8">
+              <img 
+                src={isDarkMode ? "/box-black.svg" : "/box-skyblue.svg"} 
+                alt="CITRICLOUD" 
+                className="h-10 w-auto rounded-lg"
+              />
+              <div className="flex flex-col">
+                <span className="text-lg font-semibold text-gray-900 dark:text-white" style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+              </div>
             </Link>
             
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -214,9 +232,16 @@ export default function LoginPage() {
             className="w-full"
           >
             <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-8 sm:p-10 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
-              <Link to="/" className="flex lg:hidden items-center justify-center mb-8">
-                <img src="/lightmode.svg?v=8" alt="CITRICLOUD" className="h-5 sm:h-6 w-auto dark:hidden" />
-                <img src="/darkmode.svg?v=8" alt="CITRICLOUD" className="h-5 sm:h-6 w-auto hidden dark:inline" />
+              <Link to="/" className="flex lg:hidden items-center justify-center gap-2 mb-8">
+                <img 
+                  src={isDarkMode ? "/box-black.svg" : "/box-skyblue.svg"} 
+                  alt="CITRICLOUD" 
+                  className="h-9 w-auto rounded-lg"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xl font-semibold text-gray-900 dark:text-white" style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+                </div>
               </Link>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-2">

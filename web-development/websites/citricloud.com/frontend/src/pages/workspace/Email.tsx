@@ -626,10 +626,15 @@ export default function EmailApp() {
           </button>
           
           <div className="flex items-center gap-2">
-            <>
-              <img src="/lightmode.svg?v=8" alt="CITRICLOUD Email" className="h-3 sm:h-4 w-auto hidden" />
-              <img src="/darkmode.svg?v=8" alt="CITRICLOUD Email" className="h-3 sm:h-4 w-auto" />
-            </>
+            <img 
+              src="/box-white.svg" 
+              alt="CITRICLOUD" 
+              className="h-7 sm:h-8 w-auto rounded-lg"
+            />
+            <div className="flex flex-col">
+              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+            </div>
             <span className="text-white font-semibold text-sm">Email</span>
           </div>
           <div className="relative flex-1 max-w-md hidden md:block">

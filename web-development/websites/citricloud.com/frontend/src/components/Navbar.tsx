@@ -341,14 +341,16 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     }`}>
       <div className="container mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 max-w-7xl overflow-x-hidden overflow-y-visible">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center shrink-0">
-            <img
-              src={transparent ? "/darkmode.svg?v=8" : (isDarkMode ? "/darkmode.svg?v=8" : "/lightmode.svg?v=8")}
-              alt="CITRICLOUD"
-              width="667"
-              height="60"
-              className={`${isDashboardDomain ? 'h-4 sm:h-4 md:h-5' : 'h-4 sm:h-4 md:h-5'} w-auto transition-all max-w-[120px] sm:max-w-none`}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <img 
+              src={isDarkMode ? "/box-black.svg" : "/box-skyblue.svg"} 
+              alt="CITRICLOUD" 
+              className="h-8 sm:h-9 md:h-10 w-auto rounded-lg"
             />
+            <div className="flex flex-col">
+              <span className={`text-sm sm:text-base md:text-lg font-bold ${transparent ? 'text-white drop-shadow-lg' : 'text-gray-900 dark:text-white'}`} style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+              <span className={`text-[10px] sm:text-xs tracking-wide font-medium ${transparent ? 'text-white/90 drop-shadow-md' : 'text-gray-600 dark:text-gray-400'}`} style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+            </div>
           </div>
 
           <div className="hidden lg:flex items-center space-x-1">

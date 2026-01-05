@@ -3,6 +3,7 @@ import { FiMail, FiFileText, FiGrid as FiExcel, FiPieChart, FiEdit3, FiCloud, Fi
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 
 export default function Workspace() {
@@ -82,6 +83,7 @@ export default function Workspace() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      <Topbar />
       <Navbar />
       <main className="flex-1 pt-28 sm:pt-32 pb-12">
         <div className="max-w-7xl mx-auto px-6">
