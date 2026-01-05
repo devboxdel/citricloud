@@ -128,7 +128,7 @@ const ControlPanels = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pt-40 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-primary-600/10 dark:bg-primary-600/20" />
         <div className="container mx-auto px-4 relative">
           <motion.div

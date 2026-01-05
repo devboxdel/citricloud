@@ -176,17 +176,18 @@ export default function BlogPostPage() {
         <motion.section
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative border-b border-white/30 dark:border-gray-700/30 overflow-hidden"
+          className="relative border-b border-white/30 dark:border-gray-700/30 overflow-hidden bg-gray-900 dark:bg-black"
           style={{
             backgroundImage: post.featured_image ? `url(${getImageUrl(post.featured_image)})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
           }}
         >
           {/* Overlay for better text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 dark:from-black/70 dark:via-black/50 dark:to-black/80"></div>
           
-          <div className="relative h-[500px] flex flex-col">
+          <div className="relative h-[600px] sm:h-[700px] flex flex-col">
             {/* Title centered in the absolute middle */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="container mx-auto px-4 sm:px-6 max-w-7xl">

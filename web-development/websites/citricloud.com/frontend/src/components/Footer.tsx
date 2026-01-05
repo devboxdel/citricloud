@@ -171,6 +171,9 @@ export default function Footer() {
                 <a className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:translate-x-1 transition-all duration-200 py-1 block inline-flex items-center gap-2" href="https://contact.citricloud.com"><span>→</span> {t('contact')}</a>
               </li>
               <li>
+                <a className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:translate-x-1 transition-all duration-200 py-1 block inline-flex items-center gap-2" href="https://citricloud.com/careers"><span>→</span> Careers</a>
+              </li>
+              <li>
                 <a className="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:translate-x-1 transition-all duration-200 py-1 block inline-flex items-center gap-2" href="https://citricloud.com/faq"><span>→</span> {t('faq')}</a>
               </li>
               <li>
