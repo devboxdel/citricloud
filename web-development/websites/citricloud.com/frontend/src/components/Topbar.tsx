@@ -1,10 +1,54 @@
-import { FiPhone, FiMail, FiClock } from 'react-icons/fi';
+import { FiPhone, FiMail, FiClock, FiAlertCircle } from 'react-icons/fi';
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
 
 export default function Topbar() {
   return (
-    <div className="fixed top-0 left-0 right-0 w-full z-[60] bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-black dark:via-gray-950 dark:to-black text-gray-100 border-b border-gray-700/50 dark:border-gray-800/50">
-      <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 max-w-7xl">
+    <>
+      {/* Development Notice Marquee */}
+      <div className="fixed top-0 left-0 right-0 w-full z-[61] bg-yellow-500 dark:bg-yellow-600 text-gray-900 dark:text-gray-100 overflow-hidden h-[32px]">
+        <div className="flex h-full">
+          <div className="animate-marquee whitespace-nowrap py-1.5 text-sm font-medium flex items-center">
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+          </div>
+          <div className="animate-marquee whitespace-nowrap py-1.5 text-sm font-medium flex items-center">
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+            <span className="inline-flex items-center gap-2 px-4">
+              <FiAlertCircle className="w-4 h-4" />
+              ⚠️ DEVELOPMENT MODE: This website is currently under development. Some features may not work properly.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Original Topbar - positioned directly after marquee */}
+      <div className="fixed top-[32px] left-0 right-0 w-full z-[60] bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-black dark:via-gray-950 dark:to-black text-gray-100 border-b border-gray-700/50 dark:border-gray-800/50">
+        <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 max-w-7xl">
         {/* Mobile & Tablet: Compact single-line layout */}
         <div className="flex items-center justify-between py-1.5 sm:py-2 gap-2 sm:gap-3 md:hidden text-[11px] sm:text-xs">
           {/* Contact icons on mobile */}
@@ -136,6 +180,7 @@ export default function Topbar() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

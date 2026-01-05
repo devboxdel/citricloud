@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { RichTextEditor } from '../components/RichTextEditor';
 import { toast } from 'react-hot-toast';
@@ -1719,10 +1720,11 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
       <main className="flex-1">
-        <section className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-6 sm:pb-8 max-w-6xl">
+        <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-6 sm:pb-8 max-w-6xl">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

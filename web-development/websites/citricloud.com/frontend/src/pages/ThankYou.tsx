@@ -22,7 +22,7 @@ export default function ThankYouPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
         <Navbar />
-        <div className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16">
           <div className="max-w-4xl mx-auto">
             <div className="glass-card p-12 rounded-2xl bg-white/80 dark:bg-gray-900/80 text-center">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Order Not Found</h2>
@@ -49,7 +49,7 @@ export default function ThankYouPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
       <Navbar />
 
-      <div className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-16">
+      <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

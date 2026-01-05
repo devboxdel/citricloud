@@ -117,6 +117,21 @@ export default function LogPage() {
     
     
     
+    
+    { // 54b3d48d
+      date: '2026-01-05',
+      time: '18:22',
+      type: 'update',
+      title: 'Merge pull request #7 from devboxdel:release/v1.0.0',
+      description: 'Git commit: Merge pull request #7 from devboxdel:release/v1.0.0'
+    },
+    { // ef0d80ea
+      date: '2026-01-05',
+      time: '17:24',
+      type: 'update',
+      title: 'Log page updated',
+      description: 'Git commit: Log page updated'
+    },
     { // f7d642d7
       date: '2026-01-05',
       time: '17:21',
@@ -2737,7 +2752,7 @@ export default function LogPage() {
       <Navbar />
 
       <main className="flex-1">
-        <section className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-16 max-w-7xl">
+        <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16 max-w-7xl">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

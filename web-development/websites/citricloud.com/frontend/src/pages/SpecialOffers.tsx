@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { FiGift, FiPercent, FiClock, FiCheck, FiStar, FiZap } from 'react-icons/fi';
 
@@ -109,6 +110,7 @@ const SpecialOffers = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Topbar />
       <Navbar />
       
       {/* Hero Section */}

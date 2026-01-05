@@ -85,7 +85,7 @@ export default function Workspace() {
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Topbar />
       <Navbar />
-      <main className="flex-1 pt-28 sm:pt-32 pb-12">
+      <main className="flex-1 pt-40 sm:pt-44 pb-12">
         <div className="max-w-7xl mx-auto px-6">
           {/* License Warning Banner */}
           {!hasWorkspaceAccess && (

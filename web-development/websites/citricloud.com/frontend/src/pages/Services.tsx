@@ -34,7 +34,7 @@ export default function ServicesPage() {
       <Navbar />
 
       <main className="flex-1 pt-10">
-      <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-12 max-w-7xl">
+      <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-12 max-w-7xl">
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

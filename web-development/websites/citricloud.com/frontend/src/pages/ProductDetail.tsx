@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
@@ -131,8 +132,9 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+        <Topbar />
         <Navbar />
-        <div className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16">
           <div className="max-w-4xl mx-auto">
             <div className="glass-card p-12 rounded-2xl bg-white/80 dark:bg-gray-900/80 text-center">
               <h2 className="text-3xl font-bold text-red-600 dark:text-red-400 mb-4">Product Not Found</h2>
@@ -159,9 +161,10 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
-      <div className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-16 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16 max-w-7xl">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}

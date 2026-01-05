@@ -27,7 +27,11 @@ export default function Navbar({ transparent = false }: NavbarProps) {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [latestBlogPosts, setLatestBlogPosts] = useState<any[]>([]);
+  const [isScrolled, setIsScrolled] = useState(false);
   const isDashboardDomain = typeof window !== 'undefined' && window.location.hostname === 'my.citricloud.com';
+  
+  // Override transparent prop when scrolled
+  const isTransparent = transparent && !isScrolled;
   
   const profileRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -49,6 +53,16 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     window.location.pathname === '/login' || 
     window.location.pathname === '/register'
   );
+
+  // Track scroll position for navbar transparency
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Track dark mode
   useEffect(() => {
@@ -334,8 +348,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
 
   return (
     <>
-    <nav className={`fixed top-10 left-0 right-0 w-full z-50 ${
-      transparent 
+    <nav className={`fixed top-[72px] left-0 right-0 w-full z-50 ${
+      isTransparent 
         ? 'bg-transparent' 
         : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl shadow-lg border-b border-white/30 dark:border-gray-700/30'
     }`}>
@@ -348,8 +362,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
               className="h-8 sm:h-9 md:h-10 w-auto rounded-lg"
             />
             <div className="flex flex-col">
-              <span className={`text-sm sm:text-base md:text-lg font-bold ${transparent ? 'text-white drop-shadow-lg' : 'text-gray-900 dark:text-white'}`} style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
-              <span className={`text-[10px] sm:text-xs tracking-wide font-medium ${transparent ? 'text-white/90 drop-shadow-md' : 'text-gray-600 dark:text-gray-400'}`} style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+              <span className={`text-sm sm:text-base md:text-lg font-bold ${isTransparent ? 'text-white drop-shadow-lg' : 'text-gray-900 dark:text-white'}`} style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+              <span className={`text-[10px] sm:text-xs tracking-wide font-medium ${isTransparent ? 'text-white/90 drop-shadow-md' : 'text-gray-600 dark:text-gray-400'}`} style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
             </div>
           </div>
 
@@ -381,7 +395,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                         }
                       }}
                       className={`px-4 py-2 rounded-lg ${
-                        transparent 
+                        isTransparent 
                           ? 'text-white hover:text-primary-300 hover:bg-white/10' 
                           : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                       } font-medium transition-all flex items-center gap-1`}
@@ -822,7 +836,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                   key={item.id}
                   href={item.url}
                   className={`px-4 py-2 rounded-lg ${
-                    transparent 
+                    isTransparent 
                       ? 'text-white hover:text-primary-300 hover:bg-white/10' 
                       : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   } font-medium transition-all flex items-center gap-2`}
@@ -839,7 +853,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             <Link
               to="/cart"
               className={`relative hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl ${
-                transparent
+                isTransparent
                   ? 'bg-white/10 hover:bg-white/20 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
               } font-medium transition-all`}
@@ -883,7 +897,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                     setNotificationOpen(false);
                   }}
                   className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl ${
-                    transparent
+                    isTransparent
                       ? 'bg-white/10 hover:bg-white/20 text-white'
                       : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
                   } font-medium transition-all`}
@@ -958,7 +972,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             {!isAuthenticated && (
               <a href="https://my.citricloud.com/login" className="hidden sm:inline-block">
                 <button className={`px-4 py-2 rounded-lg font-semibold shadow-md transition-all text-sm sm:text-base ${
-                  transparent
+                  isTransparent
                     ? 'text-white bg-white/20 hover:bg-white/30 border border-white/30'
                     : 'text-white bg-primary-700 hover:bg-primary-800'
                 }`}>
@@ -973,7 +987,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
               aria-label="Toggle Mobile Menu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`lg:hidden p-2 rounded-lg transition-all ${
-                transparent
+                isTransparent
                   ? 'text-white hover:bg-white/10'
                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}

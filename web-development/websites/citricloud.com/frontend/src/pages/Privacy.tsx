@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <Navbar />
 
       <main className="flex-1">
-        <section className="container mx-auto px-4 sm:px-6 pt-28 sm:pt-36 pb-16 max-w-4xl">
+        <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

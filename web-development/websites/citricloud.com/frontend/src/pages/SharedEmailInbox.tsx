@@ -377,7 +377,7 @@ export default function SharedEmailInbox() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
       <Navbar />
       
-      <div className="container mx-auto px-2 sm:px-4 md:px-6 py-8 pt-24 max-w-7xl">
+      <div className="container mx-auto px-2 sm:px-4 md:px-6 py-8 pt-40 max-w-7xl">
         {/* Header */}
         <div className="mb-6">
           <Link

@@ -14,7 +14,7 @@ export default function AboutPage() {
       <Navbar />
 
       <main className="flex-1 pt-10">
-      <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16 max-w-7xl">
+      <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16 max-w-7xl">
         <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-5xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('about')}</motion.h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl">{t('about_subtitle')}</p>
       </section>

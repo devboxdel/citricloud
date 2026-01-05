@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { FiGlobe, FiCheck, FiSearch, FiShield, FiZap, FiUsers } from 'react-icons/fi';
 
@@ -87,10 +88,11 @@ const Domains = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <Topbar />
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pt-40 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-primary-600/10 dark:bg-primary-600/20" />
         <div className="container mx-auto px-4 relative">
           <motion.div

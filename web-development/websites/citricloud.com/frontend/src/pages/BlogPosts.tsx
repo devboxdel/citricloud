@@ -74,7 +74,7 @@ export default function BlogPostsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
       <Navbar />
 
-      <section className="container mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-8 max-w-7xl">
+      <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-8 max-w-7xl">
         <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-5xl font-bold text-gray-800 dark:text-gray-100 mb-3">Blog Posts</motion.h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl">Browse the latest stories and updates from our team.</p>
 
