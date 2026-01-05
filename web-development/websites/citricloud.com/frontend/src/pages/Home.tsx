@@ -154,7 +154,7 @@ export default function HomePage() {
             height="800"
             fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/90 to-gray-900/70 dark:from-gray-800/85 dark:via-gray-900/80 dark:to-gray-900/75"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/75 via-gray-900/65 to-gray-900/50 dark:from-gray-800/70 dark:via-gray-900/60 dark:to-gray-900/55"></div>
         </div>
 
         {/* Content */}

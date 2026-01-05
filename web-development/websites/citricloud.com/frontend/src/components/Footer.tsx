@@ -78,13 +78,11 @@ export default function Footer() {
         <div className={`grid grid-cols-2 sm:grid-cols-3 ${isSystemAdmin ? 'md:grid-cols-4 lg:grid-cols-6' : 'md:grid-cols-4 lg:grid-cols-5'} gap-6 sm:gap-8 md:gap-10`}>
           {/* Logo, description, social icons */}
           <div className="col-span-2 sm:col-span-3 md:col-span-1">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <img
-                src={isDarkMode ? "/darkmode.svg?v=8" : "/lightmode.svg?v=8"}
-                alt="CITRICLOUD"
-                width="667"
-                height="60"
-                className="h-7 sm:h-8 md:h-9 w-auto"
+            <div className="mb-3 sm:mb-4">
+              <img 
+                src={isDarkMode ? "/box-black.svg" : "/box-skyblue.svg"} 
+                alt="CITRICLOUD" 
+                className="h-12 sm:h-14 w-auto rounded-lg"
               />
             </div>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 leading-relaxed max-w-xs">

@@ -86,10 +86,10 @@ export default function TeamsApp() {
     <div className="h-screen flex flex-col bg-white dark:bg-gray-900">
       <div className="bg-teal-700 text-white px-3 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <>
-            <img src="/lightmode.svg?v=8" alt="CITRICLOUD Teams" className="h-3 sm:h-4 w-auto hidden" />
-            <img src="/darkmode.svg?v=8" alt="CITRICLOUD Teams" className="h-3 sm:h-4 w-auto" />
-          </>
+          <div className="flex flex-col">
+            <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
+            <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
+          </div>
           <span className="font-semibold text-sm">Teams</span>
           <input
             className="ml-4 px-3 py-1.5 rounded bg-teal-800 text-white text-sm hidden md:block"
