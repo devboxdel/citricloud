@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -275,6 +276,7 @@ export default function APIReferencePage() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
       {!hasAccess ? (
         <>
+          <Topbar />
           <Navbar />
           <main className="flex-1 flex items-center justify-center px-4">
             <div className="text-center max-w-md">
@@ -295,6 +297,7 @@ export default function APIReferencePage() {
         </>
       ) : (
         <>
+          <Topbar />
           <Navbar />
 
       <main className="flex-1">

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { FiCheckCircle, FiAlertCircle, FiClock, FiServer, FiDatabase, FiCloud, FiRefreshCw, FiTrendingUp, FiBarChart2, FiActivity } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
@@ -226,6 +227,7 @@ export default function StatusPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
       <main className="flex-1">
