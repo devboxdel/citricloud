@@ -116,6 +116,28 @@ export default function LogPage() {
     
     
     
+    
+    { // f7d642d7
+      date: '2026-01-05',
+      time: '17:21',
+      type: 'fix',
+      title: 'On release/v1.0.0: Some fixes made for the topbar',
+      description: 'Git commit: On release/v1.0.0: Some fixes made for the topbar'
+    },
+    { // 55d8b6e4
+      date: '2026-01-05',
+      time: '17:21',
+      type: 'feature',
+      title: 'index on release/v1.0.0: 4d53df4 Add Topbar component to multiple pages for consistent navigation',
+      description: 'Git commit: index on release/v1.0.0: 4d53df4 Add Topbar component to multiple pages for consistent navigation'
+    },
+    { // 4d53df49
+      date: '2026-01-05',
+      time: '17:20',
+      type: 'feature',
+      title: 'Add Topbar component to multiple pages for consistent navigation',
+      description: 'Git commit: Add Topbar component to multiple pages for consistent navigation'
+    },
     { // 0bec2a21
       date: '2026-01-05',
       time: '17:52',
