@@ -157,7 +157,7 @@ export default function WorkspaceService() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-12 max-w-7xl">
+        <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-12 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

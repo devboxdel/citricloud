@@ -137,7 +137,7 @@ export default function BlogPage() {
       <Topbar />
       <Navbar />
 
-      <section className="container mx-auto px-4 sm:px-6 pb-10 max-w-7xl" style={{paddingTop: 'calc(6rem + 2.5rem)'}}>
+      <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-10 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import type React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import Topbar from '../components/Topbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { FiShoppingCart, FiSearch, FiStar, FiFilter, FiGrid, FiList, FiCheck, FiZap, FiPackage } from 'react-icons/fi';
@@ -170,10 +171,11 @@ const Shop = () => {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
       {/* Header */}
-      <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-6 max-w-7xl">
+      <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-6 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

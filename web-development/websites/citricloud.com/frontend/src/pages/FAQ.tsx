@@ -54,7 +54,7 @@ export default function FAQPage() {
 
       <main className="flex-1">
         {/* Header */}
-        <section className="container mx-auto px-4 sm:px-6 pt-32 sm:pt-36 pb-8 sm:pb-12 max-w-7xl">
+        <section className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-8 sm:pb-12 max-w-7xl">
           <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('faq_title')}</motion.h1>
           <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 max-w-3xl">{t('faq_subtitle')}</p>
         </section>

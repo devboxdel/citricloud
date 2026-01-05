@@ -148,9 +148,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
-      <div className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16">
+      <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

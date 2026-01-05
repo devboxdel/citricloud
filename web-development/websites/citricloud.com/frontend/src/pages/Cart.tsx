@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
 import { useCartStore } from '../store/cartStore';
@@ -17,8 +18,9 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+        <Topbar />
         <Navbar />
-        <div className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16">
           <div className="max-w-4xl mx-auto">
             <div className="glass-card p-12 rounded-2xl bg-white/80 dark:bg-gray-900/80 text-center">
               <FiShoppingBag className="w-20 h-20 mx-auto mb-4 text-gray-400 dark:text-gray-600" />
@@ -43,9 +45,10 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
-      <div className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16">
+      <div className="container mx-auto px-4 sm:px-6 pt-40 sm:pt-44 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

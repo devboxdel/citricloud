@@ -229,6 +229,7 @@ const CheckoutPage = lazy(() => import('./pages/Checkout'));
 const ThankYouPage = lazy(() => import('./pages/ThankYou'));
 const ContactPage = lazy(() => import('./pages/Contact'));
 const FAQPage = lazy(() => import('./pages/FAQ'));
+const CareersPage = lazy(() => import('./pages/Careers'));
 const LoginPage = lazy(() => import('./pages/Login'));
 const RegisterPage = lazy(() => import('./pages/Register'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPassword'));
@@ -544,6 +545,7 @@ function App() {
               <Route path="/:category/product/:slug" element={<ProductDetailPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/faq" element={<FAQPage />} />
+              <Route path="/careers" element={<CareersPage />} />
               <Route path="/status" element={<StatusPage />} />
               <Route path="/log" element={<LogPage />} />
               <Route path="/api-reference" element={isAuthenticated ? <APIReferencePage /> : <Navigate to="/error/403" replace />} />
