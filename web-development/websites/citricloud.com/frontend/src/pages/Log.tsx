@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useMemo, useEffect } from 'react';
 import { activityAPI } from '../lib/activity';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { FiCheckCircle, FiTool, FiAlertCircle, FiZap, FiPackage, FiCode, FiChevronLeft, FiChevronRight, FiSearch } from 'react-icons/fi';
 import { useLanguage } from '../context/LanguageContext';
@@ -113,6 +114,22 @@ export default function LogPage() {
     
     
     
+    
+    
+    { // 0bec2a21
+      date: '2026-01-05',
+      time: '17:52',
+      type: 'update',
+      title: 'Merge pull request #6 from devboxdel/release/v1.0.0',
+      description: 'Git commit: Merge pull request #6 from devboxdel/release/v1.0.0'
+    },
+    { // 4765fabe
+      date: '2026-01-05',
+      time: '16:49',
+      type: 'feature',
+      title: 'Add logo icons to all workspace apps, Dashboard, and Topbar',
+      description: 'Git commit: Add logo icons to all workspace apps, Dashboard, and Topbar'
+    },
     { // 7893f64b
       date: '2026-01-05',
       time: '16:42',
@@ -2694,6 +2711,7 @@ export default function LogPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
       <main className="flex-1">

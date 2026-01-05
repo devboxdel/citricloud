@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { FiChevronRight, FiGlobe, FiLock, FiCode, FiFileText, FiAlertCircle } from 'react-icons/fi';
@@ -137,6 +138,7 @@ export default function SitemapPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
       <main className="flex-1">
         <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16 max-w-7xl">

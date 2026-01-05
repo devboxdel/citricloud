@@ -1,4 +1,5 @@
 import Navbar from '../components/Navbar';
+import Topbar from '../components/Topbar';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -6,6 +7,7 @@ export default function FairUsePage() {
   const { t } = useLanguage();
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
       <div className="flex-1 container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16">
         <div className="max-w-4xl mx-auto glass-card p-8 sm:p-12 rounded-2xl bg-white/90 dark:bg-gray-950/90 border border-white/30 dark:border-gray-700/30">
