@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import Topbar from '../components/Topbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { FiPackage, FiServer, FiCode, FiGlobe, FiShield, FiGift } from 'react-icons/fi';
@@ -58,10 +59,11 @@ const ShopHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <Topbar />
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pb-20 overflow-hidden" style={{paddingTop: 'calc(8rem + 2.5rem)'}}>
         <div className="absolute inset-0 bg-gradient-to-br from-primary-600/10 via-purple-600/10 to-pink-600/10 dark:from-primary-600/20 dark:via-purple-600/20 dark:to-pink-600/20" />
         <div className="container mx-auto px-4 relative">
           <motion.div

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import Topbar from '../components/Topbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { FiSettings, FiLayout, FiZap, FiDatabase, FiLock, FiTrendingUp, FiCode, FiCloud, FiHeadphones, FiShoppingCart, FiFileText, FiUsers, FiMail, FiGrid, FiCalendar, FiCheckSquare } from 'react-icons/fi';
@@ -29,9 +30,10 @@ export default function ServicesPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
-      <main className="flex-1">
+      <main className="flex-1 pt-10">
       <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-12 max-w-7xl">
         <motion.h1
           initial={{ opacity: 0, y: 12 }}

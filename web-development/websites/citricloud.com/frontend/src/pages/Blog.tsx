@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import Topbar from '../components/Topbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { cmsAPI } from '../lib/api';
@@ -133,9 +134,10 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
-      <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-10 max-w-7xl">
+      <section className="container mx-auto px-4 sm:px-6 pb-10 max-w-7xl" style={{paddingTop: 'calc(6rem + 2.5rem)'}}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

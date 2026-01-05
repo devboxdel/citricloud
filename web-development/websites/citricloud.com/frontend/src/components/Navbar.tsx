@@ -397,7 +397,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.2 }}
                           className={item.isMegaMenu 
-                            ? "fixed left-0 right-0 top-[120px] mx-auto max-w-7xl px-4 z-[9999]" 
+                            ? "fixed left-0 right-0 top-[90px] mx-auto max-w-7xl px-4 z-[9999]" 
                             : "absolute left-0 top-full mt-2 min-w-[240px] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-[9999] overflow-hidden"
                           }
                         >

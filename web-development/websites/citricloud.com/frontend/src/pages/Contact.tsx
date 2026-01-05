@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import Topbar from '../components/Topbar';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { FiMail, FiPhone, FiMapPin, FiClock, FiMessageCircle, FiSend, FiUsers } from 'react-icons/fi';
@@ -19,9 +20,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+      <Topbar />
       <Navbar />
 
-      <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16 max-w-7xl">
+      <section className="container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-16 max-w-7xl" style={{paddingTop: 'calc(6rem + 2.5rem)'}}>
         <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-5xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('get_in_touch')}</motion.h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-12 max-w-2xl">{t('contact_description')}</p>
 
