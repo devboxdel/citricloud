@@ -1,2 +1,2 @@
 # citricloud
-Welcome to the first connection between Github, Server, and VSCODE.
+My own project to learn, and make a full stack website with dashboard, workspace apps, and a app.
