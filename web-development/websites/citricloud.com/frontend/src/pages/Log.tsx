@@ -121,6 +121,14 @@ export default function LogPage() {
     
     
     
+    
+    { // 0bf9cdbe
+      date: '2026-01-05',
+      time: '20:40',
+      type: 'update',
+      title: 'Merge pull request #8 from devboxdel:release/v1.0.0',
+      description: 'Git commit: Merge pull request #8 from devboxdel:release/v1.0.0'
+    },
     { // 4a19e84d
       date: '2026-01-05',
       time: '19:39',
@@ -2771,7 +2779,7 @@ export default function LogPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-black">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
       <Topbar />
       <Navbar />
 
@@ -2793,8 +2801,8 @@ export default function LogPage() {
                   onClick={() => setViewMode('logs')}
                   className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
                     viewMode === 'logs'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
-                      : 'glass-card hover:shadow-lg hover:scale-105'
+                      ? 'bg-blue-500 text-white'
+                      : 'glass-card hover:scale-105'
                   }`}
                 >
                   📋 Logs
@@ -2803,8 +2811,8 @@ export default function LogPage() {
                   onClick={() => setViewMode('stats')}
                   className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
                     viewMode === 'stats'
-                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30'
-                      : 'glass-card hover:shadow-lg hover:scale-105'
+                      ? 'bg-purple-500 text-white'
+                      : 'glass-card hover:scale-105'
                   }`}
                 >
                   📊 Stats
@@ -2908,8 +2916,8 @@ export default function LogPage() {
                   onClick={() => setSelectedSource(source.value)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
                     selectedSource === source.value
-                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
-                      : 'glass-card hover:shadow-lg hover:scale-105'
+                      ? 'bg-primary-500 text-white'
+                      : 'glass-card hover:scale-105'
                   }`}
                 >
                   <span>{source.icon}</span>
@@ -2926,30 +2934,7 @@ export default function LogPage() {
             </div>
           </motion.div>
 
-          {/* Type Filter Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-4"
-          >
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Type</h3>
-            <div className="flex flex-wrap gap-2">
-              {['all', 'feature', 'fix', 'improvement', 'update', 'change', 'deleted', 'optimized'].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    selectedType === type
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                      : 'glass-card hover:shadow-lg'
-                  }`}
-                >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </button>
-              ))}
-            </div>
-          </motion.div>
+
 
           {/* Stats */}
           <motion.div
@@ -3213,176 +3198,155 @@ export default function LogPage() {
           </div>
             </>
           ) : (
-            /* Stats View */
-            <div className="space-y-6">
-              {/* Filters for Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="glass-card rounded-xl p-6"
-              >
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <span>🔍</span> Filter Statistics
-                </h3>
-                
-                {/* Source Filter */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Source</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { value: 'all', label: 'All', icon: '📋' },
-                      { value: 'commits', label: 'GitHub Commits', icon: '🔗' },
-                      { value: 'changes', label: 'Manual Changes', icon: '✏️' }
-                    ].map((source) => (
-                      <button
-                        key={source.value}
-                        onClick={() => setSelectedSource(source.value)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                          selectedSource === source.value
-                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30'
-                            : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg hover:scale-105'
-                        }`}
-                      >
-                        <span>{source.icon}</span>
-                        <span>{source.label}</span>
-                      </button>
-                    ))}
+            /* Stats View - Enhanced with Sidebar */
+            <div className="flex gap-6 items-start">
+              {/* Left Sidebar - Filters */}
+              <div className="w-80 flex-shrink-0">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="sticky top-24"
+                >
+                {/* Filters Card */}
+                <div className="glass-card rounded-xl p-6 space-y-4">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <span>🔍</span> Filters
+                  </h3>
+                  
+                  {/* Source Filter */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Source</h4>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'all', label: 'All Sources', icon: '📋' },
+                        { value: 'commits', label: 'GitHub', icon: '🔗' },
+                        { value: 'changes', label: 'Manual', icon: '✏️' }
+                      ].map((source) => (
+                        <button
+                          key={source.value}
+                          onClick={() => setSelectedSource(source.value)}
+                          className={`w-full px-4 py-3 rounded-lg font-medium transition-all flex items-center gap-3 ${
+                            selectedSource === source.value
+                              ? 'bg-primary-500 text-white scale-105'
+                              : 'bg-white/50 dark:bg-gray-800/50 hover:scale-102 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <span className="text-xl">{source.icon}</span>
+                          <span>{source.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Type Filter */}
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Type</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['all', 'feature', 'fix', 'improvement', 'update', 'change', 'deleted', 'optimized'].map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setSelectedType(type)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                          selectedType === type
-                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                            : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg'
-                        }`}
-                      >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </button>
-                    ))}
+                  {/* Type Filter */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Type</h4>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'all', label: 'All Types', icon: '📊' },
+                        { value: 'feature', label: 'Features', icon: '✨' },
+                        { value: 'fix', label: 'Fixes', icon: '🔧' },
+                        { value: 'improvement', label: 'Improvements', icon: '⚡' },
+                        { value: 'update', label: 'Updates', icon: '🔄' },
+                        { value: 'change', label: 'Changes', icon: '📝' },
+                        { value: 'deleted', label: 'Deletions', icon: '🗑️' },
+                        { value: 'optimized', label: 'Optimizations', icon: '⚙️' }
+                      ].map((type) => (
+                        <button
+                          key={type.value}
+                          onClick={() => setSelectedType(type.value)}
+                          className={`w-full px-4 py-2.5 rounded-lg font-medium transition-all flex items-center justify-between ${
+                            selectedType === type.value
+                              ? 'bg-blue-500 text-white scale-105'
+                              : 'bg-white/50 dark:bg-gray-800/50 hover:scale-102 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{type.icon}</span>
+                            <span className="text-sm">{type.label}</span>
+                          </div>
+                          {selectedType === type.value && logStats.byType[type.value as keyof typeof logStats.byType] !== undefined && (
+                            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                              {logStats.byType[type.value as keyof typeof logStats.byType]}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
 
-              {/* Date & Time Filters */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="glass-card rounded-xl p-6"
-              >
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <span>🗓️</span> Date & Time Filters
-                </h3>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Date Range Filter */}
-                  <div>
+                  {/* Date Range */}
+                  <div className="mb-6">
                     <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Date Range</h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-2">
                       {[
                         { value: 'all', label: 'All Time', icon: '🌐' },
                         { value: 'today', label: 'Today', icon: '📅' },
                         { value: 'week', label: 'Last 7 Days', icon: '📆' },
                         { value: 'month', label: 'Last 30 Days', icon: '📊' },
                         { value: 'quarter', label: 'Last 90 Days', icon: '📈' },
-                        { value: 'year', label: 'Last Year', icon: '🗓️' },
-                        { value: 'custom', label: 'Custom', icon: '⚙️' },
+                        { value: 'year', label: 'Last Year', icon: '🗓️' }
                       ].map((range) => (
                         <button
                           key={range.value}
                           onClick={() => setStatsDateRange(range.value as any)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                          className={`w-full px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-3 ${
                             statsDateRange === range.value
-                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
-                              : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg hover:scale-105'
+                              ? 'bg-blue-500 text-white scale-105'
+                              : 'bg-white/50 dark:bg-gray-800/50 hover:scale-102 text-gray-700 dark:text-gray-300'
                           }`}
                         >
-                          <span>{range.icon}</span>
-                          <span>{range.label}</span>
+                          <span className="text-lg">{range.icon}</span>
+                          <span className="text-sm">{range.label}</span>
                         </button>
                       ))}
                     </div>
-                    
-                    {/* Custom Date Range Inputs */}
-                    {statsDateRange === 'custom' && (
-                      <div className="grid grid-cols-2 gap-3 mt-4 p-4 bg-white/30 dark:bg-gray-800/30 rounded-lg">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                            Start Date
-                          </label>
-                          <input
-                            type="date"
-                            value={statsStartDate}
-                            onChange={(e) => setStatsStartDate(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                            End Date
-                          </label>
-                          <input
-                            type="date"
-                            value={statsEndDate}
-                            onChange={(e) => setStatsEndDate(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
-                  
-                  {/* Time of Day Filter */}
-                  <div>
+
+                  {/* Time of Day */}
+                  <div className="mb-6">
                     <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Time of Day</h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-2">
                       {[
-                        { value: 'all', label: 'All Day', icon: '🌍', time: '' },
-                        { value: 'morning', label: 'Morning', icon: '🌅', time: '6am-12pm' },
-                        { value: 'afternoon', label: 'Afternoon', icon: '☀️', time: '12pm-6pm' },
-                        { value: 'evening', label: 'Evening', icon: '🌆', time: '6pm-10pm' },
-                        { value: 'night', label: 'Night', icon: '🌙', time: '10pm-6am' },
+                        { value: 'all', label: 'All Day', icon: '🌍' },
+                        { value: 'morning', label: 'Morning', icon: '🌅' },
+                        { value: 'afternoon', label: 'Afternoon', icon: '☀️' },
+                        { value: 'evening', label: 'Evening', icon: '🌆' },
+                        { value: 'night', label: 'Night', icon: '🌙' }
                       ].map((time) => (
                         <button
                           key={time.value}
                           onClick={() => setStatsTimeFilter(time.value)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex flex-col items-center gap-1 min-w-[90px] ${
+                          className={`w-full px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-3 ${
                             statsTimeFilter === time.value
-                              ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30'
-                              : 'bg-white/50 dark:bg-gray-800/50 hover:shadow-lg hover:scale-105'
+                              ? 'bg-purple-500 text-white scale-105'
+                              : 'bg-white/50 dark:bg-gray-800/50 hover:scale-102 text-gray-700 dark:text-gray-300'
                           }`}
                         >
-                          <span className="text-xl">{time.icon}</span>
-                          <span>{time.label}</span>
-                          {time.time && (
-                            <span className="text-[10px] opacity-75">{time.time}</span>
-                          )}
+                          <span className="text-lg">{time.icon}</span>
+                          <span className="text-sm">{time.label}</span>
                         </button>
                       ))}
                     </div>
                   </div>
-                </div>
-                
-                {/* Active Filters Summary & Reset */}
-                <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Showing <span className="font-bold text-gray-800 dark:text-gray-100">{logStats.total}</span> of <span className="font-bold text-gray-800 dark:text-gray-100">{logStats.totalUnfiltered}</span> entries
-                      </span>
-                      {logStats.total !== logStats.totalUnfiltered && (
-                        <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full font-medium">
-                          Filtered
+
+                  {/* Active Filters Summary */}
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-600 dark:text-gray-400">Showing</span>
+                        <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
+                          {logStats.total} / {logStats.totalUnfiltered}
                         </span>
+                      </div>
+                      {logStats.total !== logStats.totalUnfiltered && (
+                        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 transition-all duration-500"
+                            style={{ width: `${(logStats.total / logStats.totalUnfiltered) * 100}%` }}
+                          />
+                        </div>
                       )}
                     </div>
                     {(statsDateRange !== 'all' || statsTimeFilter !== 'all' || selectedType !== 'all' || selectedSource !== 'all') && (
@@ -3395,111 +3359,154 @@ export default function LogPage() {
                           setSelectedType('all');
                           setSelectedSource('all');
                         }}
-                        className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+                        className="w-full px-4 py-2.5 bg-red-500 text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2"
                       >
                         <span>🔄</span>
-                        <span>Reset All Filters</span>
+                        <span>Reset Filters</span>
                       </button>
                     )}
                   </div>
                 </div>
-              </motion.div>
+
+                {/* Reset Button */}
+                {(statsStartDate || statsEndDate || selectedType !== 'all' || selectedSource !== 'all') && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setStatsStartDate('');
+                      setStatsEndDate('');
+                      setSelectedType('all');
+                      setSelectedSource('all');
+                    }}
+                    className="w-full px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg transition-all flex items-center gap-2 justify-center"
+                  >
+                    <span>🔄</span>
+                    <span>Reset All Filters</span>
+                  </motion.button>
+                )}
+                </motion.div>
+              </div>
+
+              {/* Main Content */}
+              <div className="flex-1 space-y-6">
+                {/* Statistics Overview Header */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="glass-card rounded-xl p-6 bg-blue-50 dark:bg-blue-900/20"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                      Statistics Overview
+                    </h2>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Live Data</span>
+                    </div>
+                  </div>
+                  
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-4 gap-4 mb-6">
+                    <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
+                      <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                        {logStats.total}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Total Entries</p>
+                    </div>
+                    <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
+                      <p className="text-4xl font-bold text-green-600 dark:text-green-400">
+                        {logStats.last7Days}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Last 7 Days</p>
+                    </div>
+                    <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
+                      <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                        {logStats.thisMonth}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">This Month</p>
+                    </div>
+                    <div className="text-center bg-white dark:bg-gray-800 rounded-lg p-4">
+                      <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                        {logStats.averagePerDay.toFixed(1)}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Avg Per Day</p>
+                    </div>
+                  </div>
 
               {/* Overview Cards */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-              >
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Entries</span>
-                    <span className="text-3xl">📊</span>
-                  </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.total}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    {selectedSource === 'all' && selectedType === 'all' ? 'All time' : 'Filtered results'}
-                  </p>
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 transition-all">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">GitHub Commits</span>
+                        <span className="text-3xl">🔗</span>
+                      </div>
+                      <p className="text-5xl font-bold text-blue-600 dark:text-blue-400">
+                        {logStats.bySource.commits}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <p className="text-xs text-gray-500 dark:text-gray-500">
+                          {logStats.total > 0 ? ((logStats.bySource.commits / logStats.total) * 100).toFixed(1) : 0}% of total
+                        </p>
+                        <div className="h-1 w-20 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 transition-all duration-500"
+                            style={{ width: `${logStats.total > 0 ? (logStats.bySource.commits / logStats.total) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Last 7 Days</span>
-                    <span className="text-3xl">📅</span>
-                  </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.last7Days}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    Avg {(logStats.last7Days / 7).toFixed(1)} per day
-                  </p>
-                </div>
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 transition-all">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Manual Changes</span>
+                        <span className="text-3xl">✏️</span>
+                      </div>
+                      <p className="text-5xl font-bold text-green-600 dark:text-green-400">
+                        {logStats.bySource.manual}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <p className="text-xs text-gray-500 dark:text-gray-500">
+                          {logStats.total > 0 ? ((logStats.bySource.manual / logStats.total) * 100).toFixed(1) : 0}% of total
+                        </p>
+                        <div className="h-1 w-20 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-green-500 transition-all duration-500"
+                            style={{ width: `${logStats.total > 0 ? (logStats.bySource.manual / logStats.total) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</span>
-                    <span className="text-3xl">📆</span>
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 transition-all">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Longest Streak</span>
+                        <span className="text-3xl">🔥</span>
+                      </div>
+                      <p className="text-5xl font-bold text-orange-600 dark:text-orange-400">
+                        {logStats.streak.longest}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <p className="text-xs text-gray-500 dark:text-gray-500">
+                          days • Current: {logStats.streak.current}
+                        </p>
+                        <div className="flex gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-1.5 h-6 rounded-full transition-all ${
+                                i < Math.min(logStats.streak.current, 5)
+                                  ? 'bg-orange-500'
+                                  : 'bg-gray-200 dark:bg-gray-700'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.thisMonth}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    {logStats.lastMonth > 0 && (
-                      <span className={logStats.thisMonth > logStats.lastMonth ? 'text-green-600' : 'text-red-600'}>
-                        {logStats.thisMonth > logStats.lastMonth ? '↑' : '↓'} {Math.abs(logStats.thisMonth - logStats.lastMonth)} vs last month
-                      </span>
-                    )}
-                    {logStats.lastMonth === 0 && 'Current month'}
-                  </p>
-                </div>
-
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Per Day</span>
-                    <span className="text-3xl">📈</span>
-                  </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.averagePerDay.toFixed(1)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">On active days</p>
-                </div>
-              </motion.div>
-
-              {/* Source and Streaks */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4"
-              >
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">GitHub Commits</span>
-                    <span className="text-3xl">🔗</span>
-                  </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.bySource.commits}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    {logStats.total > 0 ? ((logStats.bySource.commits / logStats.total) * 100).toFixed(1) : 0}% of total
-                  </p>
-                </div>
-
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Manual Changes</span>
-                    <span className="text-3xl">✏️</span>
-                  </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.bySource.manual}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    {logStats.total > 0 ? ((logStats.bySource.manual / logStats.total) * 100).toFixed(1) : 0}% of total
-                  </p>
-                </div>
-
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Longest Streak</span>
-                    <span className="text-3xl">🔥</span>
-                  </div>
-                  <p className="text-4xl font-bold text-gray-800 dark:text-gray-100">{logStats.streak.longest}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                    consecutive days • Current: {logStats.streak.current}
-                  </p>
-                </div>
-              </motion.div>
+                </motion.div>
 
               {/* Time Period Comparison */}
               <motion.div
@@ -3552,7 +3559,7 @@ export default function LogPage() {
                         <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">{count}</p>
                         <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                            className="h-full bg-blue-500 transition-all duration-500"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -3584,7 +3591,7 @@ export default function LogPage() {
                         <p className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">{count}</p>
                         <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500"
+                            className="h-full bg-cyan-500 transition-all duration-500"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -3645,7 +3652,7 @@ export default function LogPage() {
                 transition={{ delay: 0.5 }}
                 className="grid grid-cols-1 md:grid-cols-3 gap-4"
               >
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                <div className="glass-card rounded-xl p-6 transition-all">
                   <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                     <span>🏆</span> Most Active Day
                   </h3>
@@ -3662,7 +3669,7 @@ export default function LogPage() {
                   </div>
                 </div>
 
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                <div className="glass-card rounded-xl p-6 transition-all">
                   <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                     <span>📆</span> Most Active Month
                   </h3>
@@ -3682,7 +3689,7 @@ export default function LogPage() {
                   </div>
                 </div>
 
-                <div className="glass-card rounded-xl p-6 hover:shadow-xl transition-all">
+                <div className="glass-card rounded-xl p-6 transition-all">
                   <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
                     <span>🕐</span> Peak Hour
                   </h3>
@@ -3714,7 +3721,7 @@ export default function LogPage() {
                   {logStats.recentActivity.slice(0, 30).map((day, index) => (
                     <div
                       key={index}
-                      className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 hover:shadow-lg transition-all"
+                      className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 transition-all"
                     >
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                         {formatDisplayDate(day.date)}
@@ -3759,7 +3766,7 @@ export default function LogPage() {
                           </div>
                           <div className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-500"
+                              className="h-full bg-purple-500 transition-all duration-500"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -3769,6 +3776,7 @@ export default function LogPage() {
                 </div>
               </motion.div>
             </div>
+          </div>
           )}
         </section>
       </main>
