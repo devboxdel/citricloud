@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiUser, FiPhone, FiTrendingUp, FiShield, FiZap, FiCloud, FiCheck, FiUsers, FiLayout, FiFileText, FiShoppingCart } from 'react-icons/fi';
+import BrandLogo from '../components/BrandLogo';
 import { authAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';

@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import BrandLogo from './BrandLogo';
 import { useAuthStore } from '../store/authStore';
 import { useLanguage } from '../context/LanguageContext';
 import {
@@ -346,16 +347,12 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
               <FiHome className="w-5 h-5" />
             </Link>
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center gap-2 sm:gap-3">
-              <img 
-                src={isDarkMode ? "/box-black.svg" : "/box-skyblue.svg"}
-                alt="CITRICLOUD" 
-                className="h-8 sm:h-9 md:h-10 w-auto rounded-lg"
+            <Link to="/dashboard" className="flex items-center">
+              <BrandLogo 
+                size="small" 
+                showTagline={true}
+                variant="dark"
               />
-              <div className="flex flex-col">
-                <span className="text-xs sm:text-sm md:text-base font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Source Code Pro', monospace" }}>CITRICLOUD.com</span>
-                <span className="text-[8px] sm:text-[9px] md:text-[10px] font-medium text-gray-600 dark:text-gray-400" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
-              </div>
             </Link>
           </div>
           {/* Module Switcher - hidden on mobile, shown on tablet+ */}
