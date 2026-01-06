@@ -102,6 +102,271 @@ export default function LogPage() {
   const logEntries: LogEntry[] = [
     
     
+<<<<<<< Updated upstream
+=======
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    { // 6f6c96c8
+      date: '2026-01-06',
+      time: '19:44',
+      type: 'feature',
+      title: 'feat: Add log entry for NotificationBell component enhancement with transparency option',
+      description: 'Git commit: feat: Add log entry for NotificationBell component enhancement with transparency option'
+    },
+    { // 321af7f3
+      date: '2026-01-06',
+      time: '19:43',
+      type: 'feature',
+      title: 'feat: Enhance NotificationBell component with transparency option and update styles',
+      description: 'Git commit: feat: Enhance NotificationBell component with transparency option and update styles'
+    },
+    { // d5a34d1b
+      date: '2026-01-06',
+      time: '20:20',
+      type: 'update',
+      title: 'Revise README project description',
+      description: 'Git commit: Revise README project description'
+    },
+    { // d2010610
+      date: '2026-01-06',
+      time: '16:11',
+      type: 'feature',
+      title: 'Refactor branding elements: Update favicon, add BrandLogo component, and enhance logo usage across multiple pages for consistency and improved design.',
+      description: 'Git commit: Refactor branding elements: Update favicon, add BrandLogo component, and enhance logo usage across multiple pages for consistency and improved design.'
+    },
+    { // b4f0cc74
+      date: '2026-01-06',
+      time: '14:40',
+      type: 'feature',
+      title: 'Enhance LogPage: Add new log entry, simplify button styles, and improve filter UI with sidebar layout',
+      description: 'Git commit: Enhance LogPage: Add new log entry, simplify button styles, and improve filter UI with sidebar layout'
+    },
+    { // 0bf9cdbe
+      date: '2026-01-05',
+      time: '20:40',
+      type: 'update',
+      title: 'Merge pull request #8 from devboxdel:release/v1.0.0',
+      description: 'Git commit: Merge pull request #8 from devboxdel:release/v1.0.0'
+    },
+    { // 4a19e84d
+      date: '2026-01-05',
+      time: '19:39',
+      type: 'feature',
+      title: 'Add log entry for Careers page update and error page improvements',
+      description: 'Git commit: Add log entry for Careers page update and error page improvements'
+    },
+    { // f9d12d3a
+      date: '2026-01-05',
+      time: '19:38',
+      type: 'feature',
+      title: 'Add Careers page with job listings and benefits; update error pages and favicon',
+      description: 'Git commit: Add Careers page with job listings and benefits; update error pages and favicon'
+    },
+    { // 2d037fc8
+      date: '2026-01-05',
+      time: '19:37',
+      type: 'feature',
+      title: 'Refactor page layouts to improve spacing and consistency across multiple components by adjusting padding values and adding Topbar to various pages.',
+      description: 'Git commit: Refactor page layouts to improve spacing and consistency across multiple components by adjusting padding values and adding Topbar to various pages.'
+    },
+    { // 54b3d48d
+      date: '2026-01-05',
+      time: '18:22',
+      type: 'update',
+      title: 'Merge pull request #7 from devboxdel:release/v1.0.0',
+      description: 'Git commit: Merge pull request #7 from devboxdel:release/v1.0.0'
+    },
+    { // ef0d80ea
+      date: '2026-01-05',
+      time: '17:24',
+      type: 'update',
+      title: 'Log page updated',
+      description: 'Git commit: Log page updated'
+    },
+    { // f7d642d7
+      date: '2026-01-05',
+      time: '17:21',
+      type: 'fix',
+      title: 'On release/v1.0.0: Some fixes made for the topbar',
+      description: 'Git commit: On release/v1.0.0: Some fixes made for the topbar'
+    },
+    { // 55d8b6e4
+      date: '2026-01-05',
+      time: '17:21',
+      type: 'feature',
+      title: 'index on release/v1.0.0: 4d53df4 Add Topbar component to multiple pages for consistent navigation',
+      description: 'Git commit: index on release/v1.0.0: 4d53df4 Add Topbar component to multiple pages for consistent navigation'
+    },
+    { // 4d53df49
+      date: '2026-01-05',
+      time: '17:20',
+      type: 'feature',
+      title: 'Add Topbar component to multiple pages for consistent navigation',
+      description: 'Git commit: Add Topbar component to multiple pages for consistent navigation'
+    },
+    { // 0bec2a21
+      date: '2026-01-05',
+      time: '17:52',
+      type: 'update',
+      title: 'Merge pull request #6 from devboxdel/release/v1.0.0',
+      description: 'Git commit: Merge pull request #6 from devboxdel/release/v1.0.0'
+    },
+    { // 4765fabe
+      date: '2026-01-05',
+      time: '16:49',
+      type: 'feature',
+      title: 'Add logo icons to all workspace apps, Dashboard, and Topbar',
+      description: 'Git commit: Add logo icons to all workspace apps, Dashboard, and Topbar'
+    },
+    { // 7893f64b
+      date: '2026-01-05',
+      time: '16:42',
+      type: 'fix',
+      title: 'A log of bugfix, and improvements on fonts, logo icon, logo title, and logo slogan (taglines).',
+      description: 'Git commit: A log of bugfix, and improvements on fonts, logo icon, logo title, and logo slogan (taglines).'
+    },
+    { // 3ec9e23e
+      date: '2026-01-05',
+      time: '13:58',
+      type: 'update',
+      title: 'On main: Stashed out',
+      description: 'Git commit: On main: Stashed out'
+    },
+    { // 8524fd54
+      date: '2026-01-05',
+      time: '13:58',
+      type: 'fix',
+      title: 'index on main: 15ae300 Couple of fixes and improvements added',
+      description: 'Git commit: index on main: 15ae300 Couple of fixes and improvements added'
+    },
+    { // ae64c708
+      date: '2026-01-05',
+      time: '13:58',
+      type: 'fix',
+      title: 'untracked files on main: 15ae300 Couple of fixes and improvements added',
+      description: 'Git commit: untracked files on main: 15ae300 Couple of fixes and improvements added'
+    },
+    { // 15ae3007
+      date: '2026-01-05',
+      time: '13:42',
+      type: 'fix',
+      title: 'Couple of fixes and improvements added',
+      description: 'Git commit: Couple of fixes and improvements added'
+    },
+    { // f2d843ed
+      date: '2026-01-04',
+      time: '16:55',
+      type: 'feature',
+      title: 'Add Topbar component to HomePage and adjust main padding; update Navbar positioning',
+      description: 'Git commit: Add Topbar component to HomePage and adjust main padding; update Navbar positioning'
+    },
+    { // 9939fdfe
+      date: '2026-01-04',
+      time: '16:51',
+      type: 'update',
+      title: 'On (no branch): stash',
+      description: 'Git commit: On (no branch): stash'
+    },
+    { // 98f1d250
+      date: '2026-01-04',
+      time: '16:51',
+      type: 'feature',
+      title: 'index on (no branch): d4a1c72 Add Topbar component to HomePage and adjust main padding',
+      description: 'Git commit: index on (no branch): d4a1c72 Add Topbar component to HomePage and adjust main padding'
+    },
+    { // 2fd94495
+      date: '2026-01-04',
+      time: '16:51',
+      type: 'feature',
+      title: 'untracked files on (no branch): d4a1c72 Add Topbar component to HomePage and adjust main padding',
+      description: 'Git commit: untracked files on (no branch): d4a1c72 Add Topbar component to HomePage and adjust main padding'
+    },
+    { // d4a1c722
+      date: '2026-01-04',
+      time: '16:50',
+      type: 'feature',
+      title: 'Add Topbar component to HomePage and adjust main padding',
+      description: 'Git commit: Add Topbar component to HomePage and adjust main padding'
+    },
+    { // 17acb735
+      date: '2026-01-04',
+      time: '16:16',
+      type: 'fix',
+      title: 'Fix JSX syntax errors in Log.tsx stats filters section',
+      description: 'Git commit: Fix JSX syntax errors in Log.tsx stats filters section'
+    },
+    { // 54b3ccc8
+      date: '2026-01-04',
+      time: '16:08',
+      type: 'fix',
+      title: 'Fix OrderResponse schema - make shipping_address optional',
+      description: 'Git commit: Fix OrderResponse schema - make shipping_address optional'
+    },
+    { // 9a278e80
+      date: '2026-01-04',
+      time: '16:04',
+      type: 'fix',
+      title: 'Fix all ERP order and invoice endpoints - remove selectinload for User relations',
+      description: 'Git commit: Fix all ERP order and invoice endpoints - remove selectinload for User relations'
+    },
+    { // a4e88f22
+      date: '2026-01-04',
+      time: '16:02',
+      type: 'fix',
+      title: 'Fix 500 error on profile orders endpoint',
+      description: 'Git commit: Fix 500 error on profile orders endpoint'
+    },
+    { // f10e8bcb
+      date: '2026-01-04',
+      time: '15:01',
+      type: 'update',
+      title: 'Update Log page',
+      description: 'Git commit: Update Log page'
+    },
+    { // 2d01d50a
+      date: '2026-01-04',
+      time: '15:01',
+      type: 'feature',
+      title: 'Add GitHub releases modal to version display in footer',
+      description: 'Git commit: Add GitHub releases modal to version display in footer'
+    },
+    { // 9ec70574
+      date: '2026-01-04',
+      time: '14:37',
+      type: 'feature',
+      title: 'Added Stats page in Log page',
+      description: 'Git commit: Added Stats page in Log page'
+    },
+    { // 23b52461
+      date: '2026-01-04',
+      time: '14:31',
+      type: 'fix',
+      title: 'Add date & time filters to Log stats view and fix blank page routing issues',
+      description: 'Git commit: Add date & time filters to Log stats view and fix blank page routing issues'
+    },
+>>>>>>> Stashed changes
     { // bd2701d8
       date: '2026-01-04',
       time: '13:49',
