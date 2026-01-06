@@ -866,9 +866,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             
             {/* Notification Bell */}
             {isAuthenticated && (
-              <div ref={notificationRef} className="hidden sm:block">
-                <NotificationBell />
-              </div>
+              <NotificationBell isTransparent={isTransparent} />
             )}
 
             {/* Profile Dropdown */}
@@ -967,14 +965,15 @@ export default function Navbar({ transparent = false }: NavbarProps) {
 
             {/* Login Button */}
             {!isAuthenticated && (
-              <a href="https://my.citricloud.com/login" className="hidden sm:inline-block">
-                <button className={`px-4 py-2 rounded-lg font-semibold shadow-md transition-all text-sm sm:text-base ${
+              <a
+                href="https://my.citricloud.com/login"
+                className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl ${
                   isTransparent
-                    ? 'text-white bg-white/20 hover:bg-white/30 border border-white/30'
-                    : 'text-white bg-primary-700 hover:bg-primary-800'
-                }`}>
-                  Login
-                </button>
+                    ? 'bg-white/10 hover:bg-white/20 text-white'
+                    : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
+                } font-medium transition-all`}
+              >
+                <span className="text-sm">Login</span>
               </a>
             )}
 

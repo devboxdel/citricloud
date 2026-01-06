@@ -87,9 +87,10 @@ const formatRelativeTime = (dateString: string) => {
 interface NotificationBellProps {
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
+  isTransparent?: boolean;
 }
 
-export default function NotificationBell({ isOpen: externalIsOpen, setIsOpen: externalSetIsOpen }: NotificationBellProps = {}) {
+export default function NotificationBell({ isOpen: externalIsOpen, setIsOpen: externalSetIsOpen, isTransparent = false }: NotificationBellProps = {}) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -192,10 +193,14 @@ export default function NotificationBell({ isOpen: externalIsOpen, setIsOpen: ex
       {/* Bell Icon Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+        className={`relative hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl ${
+          isTransparent
+            ? 'bg-white/10 hover:bg-white/20 text-white'
+            : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white'
+        } font-medium transition-all`}
         aria-label="Notifications"
       >
-        <FiBell className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+        <FiBell className="w-4 h-4 sm:w-5 sm:h-5" />
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}

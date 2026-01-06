@@ -61,6 +61,7 @@ export default {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'glass-shimmer': 'glassShimmer 2s infinite',
+        'shimmer': 'shimmer 8s infinite linear',
       },
       keyframes: {
         fadeIn: {
@@ -74,6 +75,10 @@ export default {
         glassShimmer: {
           '0%, 100%': { opacity: '0.5' },
           '50%': { opacity: '0.8' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
     },

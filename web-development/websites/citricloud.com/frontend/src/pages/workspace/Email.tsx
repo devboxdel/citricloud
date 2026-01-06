@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiMail, FiStar, FiSend, FiEdit, FiTrash2, FiInbox, FiArchive, FiAlertCircle, FiPaperclip, FiCornerUpLeft, FiCornerUpRight, FiSearch, FiRefreshCw, FiChevronDown, FiMoreHorizontal, FiArrowLeft, FiTrendingUp, FiSettings, FiX, FiMenu, FiFolder, FiTag, FiClock, FiPlus, FiChevronRight, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 import { emailAPI, emailAliasAPI } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
+import BrandLogo from '../../components/BrandLogo';
 
 type Email = {
   id: number;
@@ -626,15 +627,11 @@ export default function EmailApp() {
           </button>
           
           <div className="flex items-center gap-2">
-            <img 
-              src="/box-white.svg" 
-              alt="citricloud.com" 
-              className="h-7 sm:h-8 w-auto rounded-lg"
+            <BrandLogo 
+              size="small" 
+              showTagline={true}
+              variant="light"
             />
-            <div className="flex flex-col">
-              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Orbitron', sans-serif" }}>citricloud.com</span>
-              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
-            </div>
             <span className="text-white font-semibold text-sm">Email</span>
           </div>
           <div className="relative flex-1 max-w-md hidden md:block">

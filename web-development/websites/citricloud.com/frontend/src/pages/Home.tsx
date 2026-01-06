@@ -185,24 +185,6 @@ export default function HomePage() {
               >
                 {t('home_hero_subtitle')}
               </motion.p>
-
-              {!isAuthenticated && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                >
-                  <a href="https://my.citricloud.com/register">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-8 py-4 rounded-xl bg-primary-700 hover:bg-primary-800 text-white font-semibold text-lg shadow-lg shadow-primary-500/50 transition-all"
-                    >
-                      {t('home_start_free')}
-                    </motion.button>
-                  </a>
-                </motion.div>
-              )}
             </motion.div>
           </div>
         </div>
@@ -409,35 +391,6 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 sm:px-6 py-10 sm:py-20 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="glass-card p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-primary-600 dark:bg-primary-600 border border-white/30 text-center shadow-xl"
-        >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
-            Ready to Get Started?
-          </h2>
-          <p className="text-base sm:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Join thousands of businesses that trust CITRICLOUD for their digital transformation.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://my.citricloud.com/register">
-              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary-500 rounded-xl font-medium text-base sm:text-lg hover:bg-gray-100 transition-all w-full sm:w-auto">
-                Start Free Trial
-              </button>
-            </a>
-            <a href="https://contact.citricloud.com/">
-              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-white/10 text-white rounded-xl font-medium text-base sm:text-lg hover:bg-white/20 transition-all backdrop-blur-sm w-full sm:w-auto">
-                Contact Sales
-              </button>
-            </a>
-          </div>
-        </motion.div>
       </section>
 
       {/* Latest Blog Posts Section */}

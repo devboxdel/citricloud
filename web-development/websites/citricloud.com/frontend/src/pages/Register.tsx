@@ -72,9 +72,12 @@ export default function RegisterPage() {
             animate={{ opacity: 1, x: 0 }}
             className="hidden lg:block"
           >
-            <Link to="/" className="inline-block mb-8">
-              <img src="/lightmode.svg?v=8" alt="CITRICLOUD" className="h-6 w-auto dark:hidden" />
-              <img src="/darkmode.svg?v=8" alt="CITRICLOUD" className="h-6 w-auto hidden dark:inline" />
+            <Link to="/" className="inline-flex items-center mb-8">
+              <BrandLogo 
+                size="medium" 
+                showTagline={true}
+                variant="dark"
+              />
             </Link>
 
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -122,8 +125,11 @@ export default function RegisterPage() {
           >
             <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 sm:p-8 lg:p-10">
               <Link to="/" className="flex items-center justify-center mb-6 lg:hidden">
-                <img src="/lightmode.svg?v=8" alt="CITRICLOUD" className="h-5 sm:h-6 w-auto dark:hidden" />
-                <img src="/darkmode.svg?v=8" alt="CITRICLOUD" className="h-5 sm:h-6 w-auto hidden dark:inline" />
+                <BrandLogo 
+                  size="medium" 
+                  showTagline={true}
+                  variant="dark"
+                />
               </Link>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-white mb-2">

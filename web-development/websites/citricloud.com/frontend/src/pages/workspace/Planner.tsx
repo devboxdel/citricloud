@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiCalendar, FiArrowLeft, FiEdit2, FiTrash2, FiPlus, FiAlertTriangle } from 'react-icons/fi';
+import BrandLogo from '../../components/BrandLogo';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
@@ -85,15 +86,7 @@ export default function PlannerApp() {
       <div className="bg-pink-500 text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center gap-2">
-            <img 
-              src="/box-white.svg" 
-              alt="citricloud.com" 
-              className="h-2.5 w-auto rounded-md"
-            />
-            <div className="flex flex-col">
-              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Orbitron', sans-serif" }}>citricloud.com</span>
-              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
-            </div>
+            <BrandLogo size="small" showTagline={true} variant="light" />
             <span className="text-white font-semibold text-sm">Planner</span>
           </div>
           <div className="hidden lg:flex items-center text-sm text-white/90 px-3 py-1 bg-white/10 rounded">

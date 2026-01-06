@@ -54,20 +54,30 @@ export default function Footer() {
   return (
     <>
       <Newsletter />
-      <footer className="glass-footer relative overflow-hidden text-gray-700 dark:text-gray-300 border-t border-gray-200/50 dark:border-gray-700/30 bg-gradient-to-br from-white via-primary-50/30 to-blue-50/40 dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-900 backdrop-blur-xl">
-        {/* Decorative background shapes for light mode */}
+      <footer className="glass-footer relative overflow-hidden text-gray-700 dark:text-gray-300 bg-gradient-to-br from-white via-primary-50/30 to-blue-50/40 dark:from-gray-900 dark:via-gray-900/95 dark:to-gray-900 backdrop-blur-xl">
+        {/* Top divider line */}
+        <div className="border-t border-gray-200/50 dark:border-gray-700/50"></div>
+        
+        {/* Enhanced Immersive Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          {/* Large circle top-left */}
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-100/40 dark:bg-transparent rounded-full blur-3xl" />
-          {/* Medium circle bottom-right */}
-          <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-blue-100/50 dark:bg-transparent rounded-full blur-3xl" />
-          {/* Small accent top-right */}
-          <div className="absolute top-20 right-1/4 w-64 h-64 bg-primary-200/30 dark:bg-transparent rounded-full blur-2xl" />
-          {/* Floating geometric shapes */}
-          <div className="absolute top-1/4 left-1/3 w-40 h-40 bg-primary-50/60 dark:bg-transparent rotate-45 blur-xl" />
-          <div className="absolute bottom-1/3 right-1/3 w-32 h-32 bg-blue-50/70 dark:bg-transparent rounded-full blur-xl" />
+          {/* Animated Gradient Orbs */}
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-primary-400/30 to-blue-500/30 dark:from-primary-600/20 dark:to-blue-600/20 rounded-full blur-3xl animate-pulse mix-blend-overlay" />
+          <div className="absolute top-1/2 -right-12 w-80 h-80 bg-gradient-to-br from-indigo-400/25 to-primary-500/25 dark:from-indigo-600/15 dark:to-primary-700/15 rounded-full blur-3xl animate-pulse mix-blend-overlay" style={{ animationDelay: '1s', animationDuration: '3s' } as React.CSSProperties} />
+          <div className="absolute -bottom-24 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 dark:from-blue-600/15 dark:to-indigo-700/15 rounded-full blur-3xl animate-pulse mix-blend-overlay" style={{ animationDelay: '2s', animationDuration: '4s' } as React.CSSProperties} />
+          
+          {/* Floating Geometric Shapes */}
+          <div className="absolute top-1/4 left-1/3 w-40 h-40 bg-primary-300/20 dark:bg-primary-500/10 rotate-45 blur-2xl animate-pulse" style={{ animationDuration: '5s' } as React.CSSProperties} />
+          <div className="absolute bottom-1/3 right-1/3 w-32 h-32 bg-blue-300/25 dark:bg-blue-500/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '4s' } as React.CSSProperties} />
+          <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-indigo-300/15 dark:bg-indigo-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s', animationDuration: '6s' } as React.CSSProperties} />
+          
+          {/* Grid Pattern Overlay */}
+          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.08] dark:opacity-[0.05] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0.3))]" />
+          
+          {/* Shimmer Effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent animate-shimmer" />
+          
           {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-primary-50/20 via-transparent to-transparent dark:from-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-50/15 via-transparent to-transparent dark:from-primary-900/10" />
         </div>
         
         {/* Glass blob effects for dark mode */}
@@ -276,60 +286,46 @@ export default function Footer() {
                     </a>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-2">
                     {releases.map((release, index) => (
                       <div 
                         key={release.id}
-                        className="glass-card rounded-xl p-5 hover:shadow-lg transition-all"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all"
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
-                                {release.name || release.tag_name}
-                              </h3>
-                              {index === 0 && (
-                                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs rounded-full font-medium">
-                                  Latest
-                                </span>
-                              )}
-                              {release.prerelease && (
-                                <span className="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs rounded-full font-medium">
-                                  Pre-release
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                              <span className="font-mono">{release.tag_name}</span>
-                              <span>•</span>
-                              <span>{formatDate(release.published_at)}</span>
-                            </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <span className="font-mono text-sm font-semibold text-gray-800 dark:text-gray-200 flex-shrink-0">
+                              {release.tag_name}
+                            </span>
+                            {index === 0 && (
+                              <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] rounded font-medium flex-shrink-0">
+                                Latest
+                              </span>
+                            )}
+                            {release.prerelease && (
+                              <span className="px-1.5 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-[10px] rounded font-medium flex-shrink-0">
+                                Pre-release
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {release.name || release.tag_name}
+                            </span>
                           </div>
-                          <a
-                            href={release.html_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center gap-2"
-                          >
-                            <FaGithub size={14} />
-                            <span>View</span>
-                          </a>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">
+                              {formatDate(release.published_at)}
+                            </span>
+                            <a
+                              href={release.html_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded transition-colors"
+                              title="View on GitHub"
+                            >
+                              <FaGithub size={16} />
+                            </a>
+                          </div>
                         </div>
-                        
-                        {release.body && (
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <div 
-                              className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed"
-                              dangerouslySetInnerHTML={{ 
-                                __html: release.body
-                                  .replace(/\n/g, '<br />')
-                                  .replace(/#{1,6}\s+(.*)/g, '<strong>$1</strong>')
-                                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                  .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                              }}
-                            />
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>

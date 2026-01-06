@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUsers, FiArrowLeft, FiEdit2, FiTrash2, FiPlus, FiMail, FiPhone, FiAlertTriangle } from 'react-icons/fi';
+import BrandLogo from '../../components/BrandLogo';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
 type Contact = {
@@ -76,15 +77,7 @@ export default function ContactsApp() {
       <div className="bg-teal-500 text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center gap-2">
-            <img 
-              src="/box-white.svg" 
-              alt="citricloud.com" 
-              className="h-2.5 w-auto rounded-md"
-            />
-            <div className="flex flex-col">
-              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Orbitron', sans-serif" }}>citricloud.com</span>
-              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
-            </div>
+            <BrandLogo size="small" showTagline={true} variant="light" />
             <span className="text-white font-semibold text-sm">Contacts</span>
           </div>
           <div className="hidden lg:flex items-center text-sm text-white/90 px-3 py-1 bg-white/10 rounded">

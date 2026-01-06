@@ -5,6 +5,7 @@ import { FiMail, FiLock, FiTrendingUp, FiShield, FiZap, FiCloud, FiCheck, FiUser
 import { authAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
+import BrandLogo from '../components/BrandLogo';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

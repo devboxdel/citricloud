@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiFolder, FiFile, FiMoreHorizontal, FiSearch, FiGrid, FiList, FiSettings, FiHelpCircle, FiUpload, FiPlus, FiStar, FiTrash2, FiShare2, FiDownload, FiArrowLeft, FiChevronDown, FiHome, FiUsers, FiClock, FiImage, FiAlertTriangle } from 'react-icons/fi';
+import BrandLogo from '../../components/BrandLogo';
 import { useAuthStore } from '../../store/authStore';
 import { workspaceAPI } from '../../lib/workspaceApi';
 
@@ -253,15 +254,7 @@ export default function DriveApp() {
           </button>
           
           <div className="flex items-center gap-2">
-            <img 
-              src="/box-white.svg" 
-              alt="citricloud.com" 
-              className="h-2.5 w-auto rounded-md"
-            />
-            <div className="flex flex-col">
-              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Orbitron', sans-serif" }}>citricloud.com</span>
-              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
-            </div>
+            <BrandLogo size="small" showTagline={true} variant="light" />
             <span className="text-sm font-semibold hidden sm:inline">Drive</span>
           </div>
           <div className="relative flex-1 max-w-xl hidden md:block">

@@ -45,7 +45,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       {/* Brand Text - Lowercase with TLD */}
       <span 
         className={`${currentSize.text} font-bold ${textColor} tracking-tight leading-none`}
-        style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+        style={{ fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
       >
         citricloud.com
       </span>
@@ -54,7 +54,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       {showTagline && (
         <span 
           className={`${currentSize.tagline} ${taglineColor} font-medium tracking-wide mt-1`}
-          style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+          style={{ fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
         >
           Modern Cloud Hosting Platform
         </span>

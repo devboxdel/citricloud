@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as coursesApi from '../../lib/coursesApi';
 import { FiArrowLeft, FiChevronDown, FiChevronRight, FiMenu, FiRefreshCw, FiSearch, FiSettings, FiStar, FiTag, FiX, FiBookOpen, FiClock, FiFolder, FiAlertTriangle } from 'react-icons/fi';
+import BrandLogo from '../../components/BrandLogo';
 import Navbar from '../../components/Navbar';
 // Footer intentionally hidden for Courses app (like Lists)
 
@@ -130,15 +131,7 @@ export default function CoursesApp() {
             <FiMenu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <img 
-              src="/box-white.svg" 
-              alt="citricloud.com" 
-              className="h-2.5 w-auto rounded-md"
-            />
-            <div className="flex flex-col">
-              <span className="text-white font-semibold text-xs sm:text-sm" style={{ fontFamily: "'Orbitron', sans-serif" }}>citricloud.com</span>
-              <span className="text-white/80 text-[8px] sm:text-[9px] tracking-wide" style={{ fontFamily: "'Source Code Pro', monospace" }}>Enterprise Cloud Platform</span>
-            </div>
+            <BrandLogo size="small" showTagline={true} variant="light" />
             <span className="text-white font-semibold text-sm">Courses</span>
           </div>
           <div className="relative flex-1 max-w-md hidden md:block">
