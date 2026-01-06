@@ -10,6 +10,7 @@ import os
 import shutil
 from pathlib import Path
 import subprocess
+import shlex
 from typing import List, Dict, Any
 import logging
 
@@ -401,11 +402,21 @@ async def execute_command(command: str = Query(...), current_user: User = Depend
     allowed_commands = ['ls', 'pwd', 'whoami', 'uptime', 'df', 'ps', 'top', 'free', 'lsof', 'netstat', 'systemctl', 'journalctl']
     
     try:
-        cmd_name = command.split()[0] if command else ''
+        # Safely parse the command into arguments
+        try:
+            cmd_parts = shlex.split(command)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid command syntax")
+
+        if not cmd_parts:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Command cannot be empty")
+
+        cmd_name = cmd_parts[0]
         if cmd_name not in allowed_commands:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Command '{cmd_name}' is not allowed")
         
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=10)
+        # Execute without using a shell to prevent command injection
+        result = subprocess.run(cmd_parts, capture_output=True, text=True, timeout=10)
         
         return {
             "timestamp": datetime.utcnow().isoformat(),
@@ -413,6 +424,9 @@ async def execute_command(command: str = Query(...), current_user: User = Depend
             "stdout": result.stdout,
             "stderr": result.stderr,
             "returncode": result.returncode,
+    except HTTPException:
+        # Re-raise HTTP exceptions without logging as server errors
+        raise
         }
     except subprocess.TimeoutExpired:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Command execution timed out")
