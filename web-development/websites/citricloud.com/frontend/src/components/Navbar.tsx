@@ -357,10 +357,10 @@ export default function Navbar({ transparent = false }: NavbarProps) {
       <div className="container mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 max-w-7xl overflow-x-hidden overflow-y-visible">
         <div className="flex items-center justify-between gap-2">
           <Link to="/" className="flex items-center shrink-0">
-            <BrandLogo 
-              size="medium" 
-              showTagline={true}
-              variant={isTransparent ? 'light' : 'dark'}
+            <img 
+              src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"}
+              alt="CITRICLOUD" 
+              className="h-14 w-auto"
             />
           </Link>
 

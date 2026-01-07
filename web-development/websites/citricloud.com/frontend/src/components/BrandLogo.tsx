@@ -17,26 +17,26 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     small: {
       icon: 'h-9 w-9',
       text: 'text-sm md:text-base',
-      tagline: 'text-[9px] md:text-[10px]',
+      tagline: 'text-xs md:text-sm',
       gap: 'gap-2.5'
     },
     medium: {
       icon: 'h-11 w-11',
       text: 'text-base md:text-lg lg:text-xl',
-      tagline: 'text-[10px] md:text-xs',
+      tagline: 'text-sm md:text-base',
       gap: 'gap-3'
     },
     large: {
       icon: 'h-14 w-14',
       text: 'text-lg md:text-xl lg:text-2xl',
-      tagline: 'text-xs md:text-sm',
+      tagline: 'text-base md:text-lg',
       gap: 'gap-4'
     }
   };
 
   const currentSize = sizes[size];
   const textColor = variant === 'dark' ? 'text-gray-900 dark:text-white' : 'text-white';
-  const taglineColor = variant === 'dark' ? 'text-gray-600 dark:text-gray-400' : 'text-white/90';
+  const taglineColor = variant === 'dark' ? 'text-gray-700 dark:text-gray-300' : 'text-white';
   // Icon color: black on light mode, white on dark mode
   const iconColor = variant === 'dark' ? '#000000' : '#FFFFFF';
 
@@ -53,7 +53,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       {/* Tagline */}
       {showTagline && (
         <span 
-          className={`${currentSize.tagline} ${taglineColor} font-medium tracking-wide mt-1`}
+          className={`${currentSize.tagline} ${taglineColor} font-semibold tracking-wide mt-1`}
           style={{ fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
         >
           Code delivered. Projects accelerated.
