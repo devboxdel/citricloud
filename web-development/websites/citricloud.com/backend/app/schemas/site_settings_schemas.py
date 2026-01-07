@@ -9,7 +9,7 @@ from datetime import datetime
 class SiteSettingsBase(BaseModel):
     """Base site settings schema"""
     site_name: Optional[str] = "CITRICLOUD"
-    site_tagline: Optional[str] = "Cloud Solutions for Modern Business"
+    site_tagline: Optional[str] = "Code delivered. Projects accelerated."
     enable_blog: Optional[bool] = True
     enable_shop: Optional[bool] = True
     enable_community: Optional[bool] = True

@@ -9,7 +9,7 @@ export default function CMSFrontendSettings() {
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
     siteName: 'CITRICLOUD',
-    siteTagline: 'Cloud Solutions for Modern Business',
+    siteTagline: 'Code delivered. Projects accelerated.',
     enableBlog: true,
     enableShop: true,
     enableCommunity: true,
@@ -36,7 +36,7 @@ export default function CMSFrontendSettings() {
       
       setSettings({
         siteName: data.site_name || 'CITRICLOUD',
-        siteTagline: 'Cloud Solutions for Modern Business',
+        siteTagline: 'Code delivered. Projects accelerated.',
         enableBlog: data.enable_blog ?? true,
         enableShop: data.enable_shop ?? true,
         enableCommunity: data.enable_community ?? true,

@@ -56,7 +56,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           className={`${currentSize.tagline} ${taglineColor} font-medium tracking-wide mt-1`}
           style={{ fontFamily: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
         >
-          Modern Cloud Hosting Platform
+          Code delivered. Projects accelerated.
         </span>
       )}
     </div>

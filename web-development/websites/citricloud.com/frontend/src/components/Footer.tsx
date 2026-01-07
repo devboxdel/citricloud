@@ -93,7 +93,7 @@ export default function Footer() {
                 citricloud.com
               </h2>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium tracking-wide">
-                Modern Cloud Hosting Platform
+                Code delivered. Projects accelerated.
               </p>
             </div>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 leading-relaxed max-w-xs">

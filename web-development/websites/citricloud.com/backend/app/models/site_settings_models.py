@@ -15,7 +15,7 @@ class SiteSettings(Base):
     
     # General settings
     site_name = Column(String(255), default="CITRICLOUD")
-    site_tagline = Column(String(500), default="Cloud Solutions for Modern Business")
+    site_tagline = Column(String(500), default="Code delivered. Projects accelerated.")
     
     # Feature toggles
     enable_blog = Column(Boolean, default=True)
