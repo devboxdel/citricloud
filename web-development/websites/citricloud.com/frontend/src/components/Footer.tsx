@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaXTwitter, FaGithub, FaLinkedin } from "react-icons/fa6";
 import { Cloud } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useLanguage } from '../context/LanguageContext';
@@ -89,11 +89,12 @@ export default function Footer() {
           {/* Logo, description, social icons */}
           <div className="col-span-2 sm:col-span-3 md:col-span-1">
             <div className="mb-3 sm:mb-4">
-              <img 
-                src={isDarkMode ? "/box-black.svg" : "/box-skyblue.svg"} 
-                alt="CITRICLOUD" 
-                className="h-12 sm:h-14 w-auto rounded-lg"
-              />
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+                citricloud.com
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium tracking-wide">
+                Modern Cloud Hosting Platform
+              </p>
             </div>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 leading-relaxed max-w-xs">
               CITRICLOUD is an enterprise-grade cloud platform delivering integrated CRM, CMS, ERP, and email workspace solutions. Built for scalability and performance, we empower businesses to streamline operations and accelerate digital transformation.
@@ -101,14 +102,14 @@ export default function Footer() {
             <div className="flex gap-3 sm:gap-4">
               <a 
                 href="https://twitter.com/citricloud" 
-                title="Twitter" 
-                aria-label="Twitter" 
+                title="X (Twitter)" 
+                aria-label="X (Twitter)" 
                 className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
-                <FaTwitter size={16} />
+                <FaXTwitter size={16} />
               </a>
               <a 
-                href="https://github.com/citricloud" 
+                href="https://github.com/devboxdel/citricloud" 
                 title="GitHub" 
                 aria-label="GitHub" 
                 className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-900 hover:text-white dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110 hover:shadow-lg"

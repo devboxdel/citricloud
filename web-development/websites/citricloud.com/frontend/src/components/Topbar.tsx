@@ -1,5 +1,5 @@
 import { FiPhone, FiMail, FiClock, FiAlertCircle } from 'react-icons/fi';
-import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaFacebook, FaXTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa6';
 
 export default function Topbar() {
   return (
@@ -87,9 +87,9 @@ export default function Topbar() {
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:text-sky-400 transition-colors"
-              aria-label="Twitter"
+              aria-label="X (Twitter)"
             >
-              <FaTwitter className="w-3.5 h-3.5" />
+              <FaXTwitter className="w-3.5 h-3.5" />
             </a>
             <a 
               href="https://linkedin.com/company/citricloud" 
@@ -154,9 +154,9 @@ export default function Topbar() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="hover:text-sky-400 hover:scale-110 transition-all"
-                aria-label="Twitter"
+                aria-label="X (Twitter)"
               >
-                <FaTwitter className="w-4 h-4" />
+                <FaXTwitter className="w-4 h-4" />
               </a>
               <a 
                 href="https://linkedin.com/company/citricloud" 
