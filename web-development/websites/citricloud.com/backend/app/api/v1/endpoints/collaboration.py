@@ -197,7 +197,466 @@ async def get_team_details(
     }
 
 
+class TeamMemberAdd(BaseModel):
+    user_id: int
+    role: str = "MEMBER"
+
+
+class TeamMemberBatchAdd(BaseModel):
+    user_ids: List[int]
+    role: str = "MEMBER"
+
+
+@router.post("/teams/{team_id}/members")
+async def add_team_member(
+    team_id: int,
+    member_data: TeamMemberAdd,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Add a member to a team"""
+    # Check if team exists
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if current user is admin or owner
+    current_member = next((m for m in team.members if m.user_id == current_user.id), None)
+    if not current_member or current_member.role not in [TeamRole.OWNER, TeamRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Only team owners and admins can add members")
+    
+    # Check if user already exists in team
+    existing_member = next((m for m in team.members if m.user_id == member_data.user_id), None)
+    if existing_member:
+        raise HTTPException(status_code=400, detail="User is already a member of this team")
+    
+    # Validate role
+    try:
+        role = TeamRole[member_data.role.upper()]
+    except KeyError:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of: {', '.join(r.value for r in TeamRole)}")
+    
+    # Check if user exists
+    user_query = select(User).where(User.id == member_data.user_id)
+    user_result = await db.execute(user_query)
+    user = user_result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Add member
+    new_member = TeamMember(
+        team_id=team_id,
+        user_id=member_data.user_id,
+        role=role
+    )
+    db.add(new_member)
+    
+    # Log activity
+    activity = ActivityLog(
+        user_id=current_user.id,
+        activity_type=ActivityType.TEAM_JOIN,
+        action=f"added {user.full_name or user.email}",
+        target=team.name
+    )
+    db.add(activity)
+    
+    await db.commit()
+    
+    return {
+        "message": "Member added successfully",
+        "member": {
+            "id": user.id,
+            "name": user.full_name,
+            "email": user.email,
+            "role": role.value
+        }
+    }
+
+
+@router.delete("/teams/{team_id}/members/{user_id}")
+async def remove_team_member(
+    team_id: int,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Remove a member from a team"""
+    # Check if team exists
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members).selectinload(TeamMember.user)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if current user is admin or owner
+    current_member = next((m for m in team.members if m.user_id == current_user.id), None)
+    if not current_member or current_member.role not in [TeamRole.OWNER, TeamRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Only team owners and admins can remove members")
+    
+    # Find member to remove
+    member_to_remove = next((m for m in team.members if m.user_id == user_id), None)
+    if not member_to_remove:
+        raise HTTPException(status_code=404, detail="User is not a member of this team")
+    
+    # Prevent removing the last owner
+    if member_to_remove.role == TeamRole.OWNER:
+        owner_count = sum(1 for m in team.members if m.role == TeamRole.OWNER)
+        if owner_count <= 1:
+            raise HTTPException(status_code=400, detail="Cannot remove the last owner of the team")
+    
+    # Remove member
+    await db.delete(member_to_remove)
+    
+    # Log activity
+    activity = ActivityLog(
+        user_id=current_user.id,
+        activity_type=ActivityType.TEAM_LEAVE,
+        action=f"removed {member_to_remove.user.full_name or member_to_remove.user.email}",
+        target=team.name
+    )
+    db.add(activity)
+    
+    await db.commit()
+    
+    return {"message": "Member removed successfully"}
+
+
+@router.get("/teams/{team_id}/available-users")
+async def get_available_users_for_team(
+    team_id: int,
+    role_filter: Optional[str] = Query(None, description="Filter users by their system role"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get users that can be added to a team (not already members)"""
+    # Check if team exists and user has permission
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if current user is member
+    current_member = next((m for m in team.members if m.user_id == current_user.id), None)
+    if not current_member or current_member.role not in [TeamRole.OWNER, TeamRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Only team owners and admins can view available users")
+    
+    # Get all existing team member IDs
+    existing_member_ids = {m.user_id for m in team.members}
+    
+    # Query all users excluding existing members
+    user_query = select(User).where(User.id.notin_(existing_member_ids))
+    
+    # Filter by role if specified
+    if role_filter:
+        user_query = user_query.where(User.role == role_filter)
+    
+    user_query = user_query.order_by(User.full_name)
+    
+    result = await db.execute(user_query)
+    available_users = result.scalars().all()
+    
+    return {
+        "available_users": [
+            {
+                "id": user.id,
+                "name": user.full_name or user.email,
+                "email": user.email,
+                "role": user.role,
+                "avatar": (user.full_name[0] if user.full_name else user.email[0]).upper()
+            }
+            for user in available_users
+        ]
+    }
+
+
+@router.post("/teams/{team_id}/members/batch")
+async def add_team_members_batch(
+    team_id: int,
+    member_data: TeamMemberBatchAdd,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Add multiple members to a team at once"""
+    # Check if team exists
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if current user is admin or owner
+    current_member = next((m for m in team.members if m.user_id == current_user.id), None)
+    if not current_member or current_member.role not in [TeamRole.OWNER, TeamRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Only team owners and admins can add members")
+    
+    # Validate role
+    try:
+        role = TeamRole[member_data.role.upper()]
+    except KeyError:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of: {', '.join(r.value for r in TeamRole)}")
+    
+    # Get existing member IDs
+    existing_member_ids = {m.user_id for m in team.members}
+    
+    # Filter out users who are already members
+    user_ids_to_add = [uid for uid in member_data.user_ids if uid not in existing_member_ids]
+    
+    if not user_ids_to_add:
+        raise HTTPException(status_code=400, detail="All selected users are already members of this team")
+    
+    # Verify all users exist
+    user_query = select(User).where(User.id.in_(user_ids_to_add))
+    user_result = await db.execute(user_query)
+    users = user_result.scalars().all()
+    
+    if len(users) != len(user_ids_to_add):
+        raise HTTPException(status_code=404, detail="One or more users not found")
+    
+    # Add all members
+    added_count = 0
+    for user in users:
+        new_member = TeamMember(
+            team_id=team_id,
+            user_id=user.id,
+            role=role
+        )
+        db.add(new_member)
+        added_count += 1
+        
+        # Log activity for each member added
+        activity = ActivityLog(
+            user_id=current_user.id,
+            activity_type=ActivityType.TEAM_JOIN,
+            action=f"added {user.full_name or user.email}",
+            target=team.name
+        )
+        db.add(activity)
+    
+    await db.commit()
+    
+    return {
+        "message": f"Successfully added {added_count} member(s) to the team",
+        "added_count": added_count,
+        "skipped": len(member_data.user_ids) - added_count
+    }
+
+
+# ==================== CHANNELS ====================
+
+class ChannelCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    is_private: bool = False
+
+
+@router.post("/teams/{team_id}/channels")
+async def create_channel(
+    team_id: int,
+    channel_data: ChannelCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Create a new channel in a team"""
+    # Check if team exists and user is a member
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if user is member
+    is_member = any(m.user_id == current_user.id for m in team.members)
+    if not is_member:
+        raise HTTPException(status_code=403, detail="Not a member of this team")
+    
+    # Create channel
+    channel = Channel(
+        team_id=team_id,
+        name=channel_data.name,
+        description=channel_data.description,
+        is_private=channel_data.is_private
+    )
+    db.add(channel)
+    
+    # Log activity
+    activity = ActivityLog(
+        user_id=current_user.id,
+        activity_type=ActivityType.CHANNEL_CREATE,
+        details=f"Created channel #{channel_data.name} in {team.name}"
+    )
+    db.add(activity)
+    
+    await db.commit()
+    await db.refresh(channel)
+    
+    return {
+        "id": channel.id,
+        "name": channel.name,
+        "description": channel.description,
+        "is_private": channel.is_private,
+        "created_at": channel.created_at.isoformat()
+    }
+
+
+@router.get("/channels/{channel_id}/messages")
+async def get_channel_messages(
+    channel_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get messages in a channel"""
+    # Get channel with team info
+    channel_query = select(Channel).where(Channel.id == channel_id).options(
+        selectinload(Channel.team).selectinload(Team.members)
+    )
+    channel_result = await db.execute(channel_query)
+    channel = channel_result.scalar_one_or_none()
+    
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
+    
+    # Check if user is team member
+    is_member = any(m.user_id == current_user.id for m in channel.team.members)
+    if not is_member:
+        raise HTTPException(status_code=403, detail="Not a member of this team")
+    
+    # Get messages
+    messages_query = select(ChannelMessage).where(
+        ChannelMessage.channel_id == channel_id
+    ).options(
+        selectinload(ChannelMessage.user)
+    ).order_by(ChannelMessage.created_at)
+    
+    messages_result = await db.execute(messages_query)
+    messages = messages_result.scalars().all()
+    
+    return {
+        "channel": {
+            "id": channel.id,
+            "name": channel.name,
+            "description": channel.description
+        },
+        "messages": [
+            {
+                "id": msg.id,
+                "content": msg.content,
+                "user": {
+                    "id": msg.user.id,
+                    "name": msg.user.full_name,
+                    "email": msg.user.email,
+                    "avatar": msg.user.email[0].upper()
+                },
+                "created_at": msg.created_at.isoformat()
+            }
+            for msg in messages
+        ]
+    }
+
+
+@router.post("/channels/{channel_id}/messages")
+async def send_channel_message(
+    channel_id: int,
+    content: str = Query(..., min_length=1),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Send a message to a channel"""
+    # Get channel with team info
+    channel_query = select(Channel).where(Channel.id == channel_id).options(
+        selectinload(Channel.team).selectinload(Team.members)
+    )
+    channel_result = await db.execute(channel_query)
+    channel = channel_result.scalar_one_or_none()
+    
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
+    
+    # Check if user is team member
+    is_member = any(m.user_id == current_user.id for m in channel.team.members)
+    if not is_member:
+        raise HTTPException(status_code=403, detail="Not a member of this team")
+    
+    # Create message
+    message = ChannelMessage(
+        channel_id=channel_id,
+        user_id=current_user.id,
+        content=content
+    )
+    db.add(message)
+    
+    # Log activity
+    activity = ActivityLog(
+        user_id=current_user.id,
+        activity_type=ActivityType.CHANNEL_MESSAGE,
+        details=f"Posted in #{channel.name}"
+    )
+    db.add(activity)
+    
+    await db.commit()
+    await db.refresh(message)
+    
+    return {
+        "id": message.id,
+        "content": message.content,
+        "created_at": message.created_at.isoformat()
+    }
+
+
 # ==================== MESSAGES / CONVERSATIONS ====================
+
+@router.get("/users/messageable")
+async def get_messageable_users(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get list of users that can be messaged (team members from all teams)"""
+    # Get all teams where current user is a member
+    team_query = select(Team).join(TeamMember).where(
+        TeamMember.user_id == current_user.id
+    ).options(
+        selectinload(Team.members).selectinload(TeamMember.user)
+    )
+    team_result = await db.execute(team_query)
+    teams = team_result.scalars().all()
+    
+    # Collect all unique team members
+    user_ids = set()
+    users_data = []
+    
+    for team in teams:
+        for member in team.members:
+            if member.user_id != current_user.id and member.user_id not in user_ids:
+                user_ids.add(member.user_id)
+                users_data.append({
+                    "id": member.user.id,
+                    "name": member.user.full_name,
+                    "email": member.user.email,
+                    "avatar": member.user.email[0].upper(),
+                    "role": member.user.role,
+                    "team": team.name
+                })
+    
+    return {"users": users_data}
+
 
 @router.get("/conversations")
 async def get_conversations(

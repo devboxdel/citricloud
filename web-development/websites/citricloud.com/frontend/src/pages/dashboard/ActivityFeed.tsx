@@ -2,37 +2,35 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuthStore } from '../../store/authStore';
-import { FiActivity, FiUser, FiFile, FiMessageSquare, FiUsers, FiCheckCircle, FiAlertCircle, FiUpload, FiDownload, FiEdit, FiTrash2, FiStar, FiClock } from 'react-icons/fi';
+import { FiActivity, FiUsers, FiFile, FiMessageSquare, FiCheckCircle, FiStar, FiEdit, FiClock } from 'react-icons/fi';
 
 interface Activity {
   id: number;
-  user_id: number;
+  user: {
+    full_name?: string;
+    email?: string;
+  };
   activity_type: string;
   action: string;
   target: string;
   timestamp: string;
-  user?: {
-    id: number;
-    email: string;
-    full_name: string;
-  };
 }
 
-interface ActivityStats {
+interface Stats {
   total_today: number;
-  total_week: number;
-  active_users: number;
-  files_shared: number;
+  this_week: number;
+  team_actions: number;
+  new_users: number;
 }
 
 export default function ActivityFeed() {
   const { user } = useAuthStore();
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [stats, setStats] = useState<ActivityStats>({
+  const [stats, setStats] = useState<Stats>({
     total_today: 0,
-    total_week: 0,
-    active_users: 0,
-    files_shared: 0
+    this_week: 0,
+    team_actions: 0,
+    new_users: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -71,17 +69,18 @@ export default function ActivityFeed() {
     }
   };
 
-  const getActivityIcon = (activityType: string) => {
-    switch (activityType.toLowerCase()) {
-      case 'file_upload':
-        return { icon: <FiUpload />, color: 'text-blue-500', bgColor: 'bg-blue-100 dark:bg-blue-500/20' };
-      case 'file_download':
-        return { icon: <FiDownload />, color: 'text-indigo-500', bgColor: 'bg-indigo-100 dark:bg-indigo-500/20' };
+  const getActivityIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'create':
+      case 'upload':
+        return { icon: <FiFile />, color: 'text-blue-500', bgColor: 'bg-blue-100 dark:bg-blue-500/20' };
+      case 'message':
       case 'comment':
         return { icon: <FiMessageSquare />, color: 'text-green-500', bgColor: 'bg-green-100 dark:bg-green-500/20' };
-      case 'team_create':
+      case 'join':
+      case 'invite':
         return { icon: <FiUsers />, color: 'text-purple-500', bgColor: 'bg-purple-100 dark:bg-purple-500/20' };
-      case 'task_complete':
+      case 'complete':
         return { icon: <FiCheckCircle />, color: 'text-green-500', bgColor: 'bg-green-100 dark:bg-green-500/20' };
       case 'update':
         return { icon: <FiEdit />, color: 'text-orange-500', bgColor: 'bg-orange-100 dark:bg-orange-500/20' };
@@ -92,11 +91,7 @@ export default function ActivityFeed() {
       default:
         return { icon: <FiActivity />, color: 'text-gray-500', bgColor: 'bg-gray-100 dark:bg-gray-500/20' };
     }
-  };    {
-      id: 10,
-      user: { name: 'Sarah Williams', avatar: '👩‍🔬' },
-      action: 'joined team',
-      target: 'Product Development',
+  };
 
   return (
     <DashboardLayout
@@ -126,10 +121,10 @@ export default function ActivityFeed() {
           className="glass-card p-6 rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50"
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white mb-3 shadow-lg">
-            <FiUsers />
+            <FiCheckCircle />
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Users</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.active_users}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">This Week</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.this_week}</p>
         </motion.div>
 
         <motion.div
@@ -140,10 +135,10 @@ export default function ActivityFeed() {
           className="glass-card p-6 rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50"
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white mb-3 shadow-lg">
-            <FiFile />
+            <FiUsers />
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Files Shared</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.files_shared}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Team Actions</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.team_actions}</p>
         </motion.div>
 
         <motion.div
@@ -154,53 +149,44 @@ export default function ActivityFeed() {
           className="glass-card p-6 rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50"
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white mb-3 shadow-lg">
-            <FiClock />
+            <FiStar />
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">This Week</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total_week}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">New Users</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.new_users}</p>
         </motion.div>
       </div>
 
-      {/* Activity Feed */}
+      {/* Activity Stream */}
       <div className="glass-card rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
             <FiActivity className="text-primary-500" />
             <span>Recent Activity</span>
           </h2>
-          <button 
-            onClick={fetchActivities}
-            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
-          >
-            Refresh
-          </button>
+          <button className="text-sm text-primary-500 hover:text-primary-600 font-semibold">View All</button>
         </div>
 
-        {/* Activity List */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading activities...</div>
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading...</div>
           ) : activities.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">No recent activity</div>
-          ) : (            activities.map((activity, index) => {
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">No activities yet</div>
+          ) : (
+            activities.map((activity) => {
               const { icon, color, bgColor } = getActivityIcon(activity.activity_type);
               return (
                 <motion.div
                   key={activity.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ x: 4 }}
+                  whileHover={{ scale: 1.01, x: 4 }}
                   className="flex items-start space-x-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all cursor-pointer"
                 >
-                  {/* Icon */}
-                  <div className={`w-10 h-10 rounded-full ${bgColor} flex items-center justify-center ${color} flex-shrink-0`}>
+                  <div className={`w-10 h-10 rounded-lg ${bgColor} ${color} flex items-center justify-center flex-shrink-0`}>
                     {icon}
                   </div>
-
-                  {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between flex-wrap gap-2">
                       <div>
                         <p className="text-gray-900 dark:text-white">
                           <span className="font-semibold">{activity.user?.full_name || activity.user?.email || 'Unknown User'}</span>
@@ -215,87 +201,6 @@ export default function ActivityFeed() {
               );
             })
           )}
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-}                  </div>
-                  <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
-                    <FiClock className="w-3 h-3" />
-                    <span>{activity.time}</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Load More */}
-        <div className="mt-6 text-center">
-          <button className="px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-            Load More Activities
-          </button>
-        </div>
-      </div>
-
-      {/* Activity Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <div className="glass-card rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50 p-6">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Most Active Users</h3>
-          <div className="space-y-3">
-            {[
-              { name: 'John Doe', avatar: '👨‍💼', actions: 45 },
-              { name: 'Jane Smith', avatar: '👩‍💻', actions: 38 },
-              { name: 'Mike Johnson', avatar: '🎨', actions: 32 },
-              { name: 'Sarah Williams', avatar: '👩‍🔬', actions: 28 },
-              { name: 'Tom Brown', avatar: '👨‍💻', actions: 24 },
-            ].map((user, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{user.avatar}</span>
-                  <span className="font-medium text-gray-900 dark:text-white">{user.name}</span>
-                </div>
-                <span className="text-sm font-bold text-primary-600 dark:text-primary-400">{user.actions} actions</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200/50 dark:border-gray-700/50 p-6">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Activity Types</h3>
-          <div className="space-y-3">
-            {[
-              { type: 'File Uploads', count: 156, icon: <FiUpload />, color: 'text-blue-500', percentage: 32 },
-              { type: 'Comments', count: 124, icon: <FiMessageSquare />, color: 'text-green-500', percentage: 26 },
-              { type: 'Downloads', count: 98, icon: <FiDownload />, color: 'text-purple-500', percentage: 20 },
-              { type: 'Edits', count: 87, icon: <FiEdit />, color: 'text-orange-500', percentage: 18 },
-              { type: 'Team Actions', count: 21, icon: <FiUsers />, color: 'text-pink-500', percentage: 4 },
-            ].map((type, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`${type.color}`}>{type.icon}</div>
-                    <span className="font-medium text-gray-900 dark:text-white">{type.type}</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{type.count}</span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${type.percentage}%` }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                    className={`h-2 rounded-full bg-gradient-to-r ${
-                      type.color === 'text-blue-500' ? 'from-blue-500 to-indigo-500' :
-                      type.color === 'text-green-500' ? 'from-green-500 to-emerald-500' :
-                      type.color === 'text-purple-500' ? 'from-purple-500 to-pink-500' :
-                      type.color === 'text-orange-500' ? 'from-orange-500 to-red-500' :
-                      'from-pink-500 to-rose-500'
-                    }`}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </DashboardLayout>
