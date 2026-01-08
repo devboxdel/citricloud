@@ -241,6 +241,7 @@ class ActivityType(str, Enum):
     TEAM_JOIN = "team_join"
     TEAM_LEAVE = "team_leave"
     CHANNEL_CREATE = "channel_create"
+    CHANNEL_MESSAGE = "channel_message"
     TASK_CREATE = "task_create"
     TASK_COMPLETE = "task_complete"
     MESSAGE_SEND = "message_send"

@@ -689,7 +689,8 @@ async def send_channel_message(
     activity = ActivityLog(
         user_id=current_user.id,
         activity_type=ActivityType.CHANNEL_MESSAGE,
-        details=f"Posted in #{channel.name}"
+        action=f"Posted in #{channel.name}",
+        target=f"Channel {channel.id}"
     )
     db.add(activity)
     
