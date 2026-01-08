@@ -22,6 +22,16 @@ export default function TeamsApp() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [membersText, setMembersText] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Track dark mode
+  useEffect(() => {
+    const checkDarkMode = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     // Load Teams from generic workspace API bucket "teams"
@@ -86,10 +96,10 @@ export default function TeamsApp() {
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-gray-900">
       <div className="bg-teal-700 text-white px-3 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">            <BrandLogo 
-              size="small" 
-              showTagline={true}
-              variant="light"
+        <div className="flex items-center gap-2">            <img 
+              src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} 
+              alt="CITRICLOUD" 
+              className="h-12 w-auto"
             />          <span className="font-semibold text-sm">Teams</span>
           <input
             className="ml-4 px-3 py-1.5 rounded bg-teal-800 text-white text-sm hidden md:block"

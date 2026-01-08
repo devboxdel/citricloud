@@ -38,6 +38,16 @@ export default function CoursesApp() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [currentLesson, setCurrentLesson] = useState<number>(0);
   const [isInLessonMode, setIsInLessonMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Track dark mode
+  useEffect(() => {
+    const checkDarkMode = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
   const [isSaving, setIsSaving] = useState(false);
   
   const [courses, setCourses] = useState<Course[]>([]);
@@ -131,7 +141,7 @@ export default function CoursesApp() {
             <FiMenu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <BrandLogo size="small" showTagline={true} variant="light" />
+            <img src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} alt="CITRICLOUD" className="h-12 w-auto" />
             <span className="text-white font-semibold text-sm">Courses</span>
           </div>
           <div className="relative flex-1 max-w-md hidden md:block">

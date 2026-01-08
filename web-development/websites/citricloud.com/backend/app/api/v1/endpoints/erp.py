@@ -41,7 +41,7 @@ async def list_orders(
     current_user: User = Depends(require_admin)
 ):
     """List orders with pagination"""
-    query = select(Order)
+    query = select(Order).options(selectinload(Order.user))
     
     if search:
         query = query.where(Order.order_number.ilike(f"%{search}%"))
@@ -355,8 +355,10 @@ async def list_invoices(
     current_user: User = Depends(get_current_user)
 ):
     """List invoices with pagination - users see their own, admins see all"""
-    # Load invoices without eager loading user to avoid role type mismatch
-    query = select(Invoice).options(selectinload(Invoice.order))
+    # Load invoices with order and order.user relationships
+    query = select(Invoice).options(
+        selectinload(Invoice.order).selectinload(Order.user)
+    )
     
     # Regular users can only see their own invoices (through order.user_id)
     user_role = current_user.role if isinstance(current_user.role, str) else current_user.role.value
@@ -569,7 +571,7 @@ async def list_tickets(
     current_user: User = Depends(require_admin)
 ):
     """List tickets with pagination"""
-    query = select(Ticket)
+    query = select(Ticket).options(selectinload(Ticket.user))
     
     if search:
         query = query.where(
@@ -594,8 +596,31 @@ async def list_tickets(
     result = await db.execute(query)
     tickets = result.scalars().all()
     
+    # Serialize tickets to dictionaries
+    items = []
+    for ticket in tickets:
+        items.append({
+            "id": ticket.id,
+            "ticket_number": ticket.ticket_number,
+            "user_id": ticket.user_id,
+            "user": {
+                "id": ticket.user.id,
+                "email": ticket.user.email,
+                "full_name": ticket.user.full_name
+            } if ticket.user else None,
+            "subject": ticket.subject,
+            "description": ticket.description,
+            "status": ticket.status,
+            "priority": ticket.priority,
+            "category": ticket.category,
+            "assigned_to": ticket.assigned_to,
+            "resolution": ticket.resolution,
+            "created_at": ticket.created_at,
+            "updated_at": ticket.updated_at
+        })
+    
     return {
-        "items": tickets,
+        "items": items,
         "total": total,
         "page": page,
         "page_size": page_size,
@@ -1278,25 +1303,33 @@ async def delete_category(
 async def get_stock_levels(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    search: Optional[str] = None,
-    stock_status: Optional[str] = None,
-    category_id: Optional[int] = None,
+    search: Optional[str] = Query(None),
+    stock_status: Optional[str] = Query(None),
+    category_id: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
     """Get stock levels for all products"""
     from app.models.models import ProductCategory
     
+    # Convert category_id from string to int if provided and valid
+    category_id_int = None
+    if category_id and category_id.strip():
+        try:
+            category_id_int = int(category_id)
+        except ValueError:
+            pass
+    
     query = select(Product).options(selectinload(Product.category))
     
-    if search:
+    if search and search.strip():
         query = query.where(
             (Product.name.ilike(f"%{search}%")) | 
             (Product.sku.ilike(f"%{search}%"))
         )
     
-    if category_id:
-        query = query.where(Product.category_id == category_id)
+    if category_id_int:
+        query = query.where(Product.category_id == category_id_int)
     
     if stock_status == "out":
         query = query.where(Product.stock_quantity == 0)

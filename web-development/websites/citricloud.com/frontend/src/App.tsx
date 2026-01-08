@@ -234,6 +234,10 @@ const LoginPage = lazy(() => import('./pages/Login'));
 const RegisterPage = lazy(() => import('./pages/Register'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPassword'));
 const MainDashboard = lazy(() => import('./pages/dashboard/MainDashboard'));
+const Teams = lazy(() => import('./pages/dashboard/Teams'));
+const Messages = lazy(() => import('./pages/dashboard/Messages'));
+const FileSharing = lazy(() => import('./pages/dashboard/FileSharing'));
+const ActivityFeed = lazy(() => import('./pages/dashboard/ActivityFeed'));
 const CRMDashboard = lazy(() => import('./pages/dashboard/CRMDashboard'));
 const CRMRoles = lazy(() => import('./pages/dashboard/CRMRoles'));
 const CMSDashboard = lazy(() => import('./pages/dashboard/CMSDashboard'));
@@ -589,6 +593,10 @@ function App() {
               <Route path="/shared-inbox/:sharedEmailId" element={<SharedEmailInbox />} />
               <Route path="/message/:id" element={<MessageView />} />
               <Route path="/dashboard" element={<MainDashboard />} />
+              <Route path="/dashboard/teams" element={<Teams />} />
+              <Route path="/dashboard/messages" element={<Messages />} />
+              <Route path="/dashboard/file-sharing" element={<FileSharing />} />
+              <Route path="/dashboard/activity" element={<ActivityFeed />} />
               <Route path="/dashboard/crm/*" element={<CRMDashboard />} />
               <Route path="/dashboard/cms" element={<CMSPages />} />
               <Route path="/dashboard/cms/posts" element={<CMSBlogPosts />} />

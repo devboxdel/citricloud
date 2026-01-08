@@ -22,6 +22,16 @@ export default function BookingsApp() {
   const [newTime, setNewTime] = useState('09:00');
   const [newNotes, setNewNotes] = useState('');
   const [editing, setEditing] = useState<{ id: number; title: string; date: string; time: string; notes?: string } | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Track dark mode
+  useEffect(() => {
+    const checkDarkMode = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   // Fetch bookings on mount
   useEffect(() => {
@@ -88,10 +98,10 @@ export default function BookingsApp() {
       <div className="bg-orange-600 text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center gap-2">
-            <BrandLogo 
-              size="small" 
-              showTagline={true}
-              variant="light"
+            <img 
+              src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} 
+              alt="CITRICLOUD" 
+              className="h-12 w-auto"
             />
             <span className="text-white font-semibold text-sm">Bookings</span>
           </div>

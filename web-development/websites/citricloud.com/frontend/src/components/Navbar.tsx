@@ -31,6 +31,9 @@ export default function Navbar({ transparent = false }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const isDashboardDomain = typeof window !== 'undefined' && window.location.hostname === 'my.citricloud.com';
   
+  // Check if we're on homepage
+  const isHomePage = typeof window !== 'undefined' && window.location.pathname === '/';
+  
   // Override transparent prop when scrolled
   const isTransparent = transparent && !isScrolled;
   
@@ -358,7 +361,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
         <div className="flex items-center justify-between gap-2">
           <Link to="/" className="flex items-center shrink-0">
             <img 
-              src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"}
+              src={isHomePage && isTransparent ? "/darkmode-cc-logo.svg" : (isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg")}
               alt="CITRICLOUD" 
               className="h-14 w-auto"
             />

@@ -178,10 +178,10 @@ export default function LoginPage() {
             className="hidden lg:block"
           >
             <Link to="/" className="inline-flex items-center mb-8">
-              <BrandLogo 
-                size="medium" 
-                showTagline={true}
-                variant="dark"
+              <img 
+                src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} 
+                alt="CITRICLOUD" 
+                className="h-14 w-auto"
               />
             </Link>
             
@@ -230,10 +230,10 @@ export default function LoginPage() {
           >
             <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-8 sm:p-10 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
               <Link to="/" className="flex lg:hidden items-center justify-center mb-8">
-                <BrandLogo 
-                  size="medium" 
-                  showTagline={true}
-                  variant="dark"
+                <img 
+                  src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} 
+                  alt="CITRICLOUD" 
+                  className="h-14 w-auto"
                 />
               </Link>
 

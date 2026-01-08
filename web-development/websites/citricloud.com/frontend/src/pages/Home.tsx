@@ -62,6 +62,7 @@ export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
   const { t } = useLanguage();
   const [isHeroVisible, setIsHeroVisible] = useState(true);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   // Track if user has scrolled past hero section
   useEffect(() => {
@@ -424,19 +425,30 @@ export default function HomePage() {
                 >
                   {/* Image */}
                   <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary-500 to-primary-600">
-                    {post.featured_image ? (
-                      <img
-                        src={getImageUrl(post.featured_image)}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
-                        onError={(e) => handleImageError(e, 'w-full h-full object-cover')}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <FiFileText className="w-16 h-16 text-white/50" />
-                      </div>
-                    )}
+                    {(() => {
+                      const imageUrl = post.featured_image ? getImageUrl(post.featured_image) : null;
+                      
+                      // Show placeholder icon if no valid image or if image failed to load
+                      if (!post.featured_image || !imageUrl || failedImages.has(imageUrl)) {
+                        return (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <FiFileText className="w-16 h-16 text-white/50" />
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <img
+                          src={imageUrl}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          loading="lazy"
+                          onError={() => {
+                            setFailedImages(prev => new Set(prev).add(imageUrl));
+                          }}
+                        />
+                      );
+                    })()}
                     {post.category_name && (
                       <div className="absolute top-3 left-3">
                         <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-600/90 text-white text-xs font-semibold rounded-full backdrop-blur-sm">
@@ -515,22 +527,31 @@ export default function HomePage() {
                   >
                     {/* Product Image */}
                     <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-                        {(() => {
-                          const imageUrl = resolveImageUrl(pickProductImage(product));
-                          return imageUrl ? (
-                        <img
-                            src={imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
-                            onError={handleImageError}
-                        />
-                          ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <FiPackage className="w-16 h-16 text-gray-400 dark:text-gray-600" />
-                        </div>
+                      {(() => {
+                        const rawImage = pickProductImage(product);
+                        const imageUrl = resolveImageUrl(rawImage);
+                        
+                        // Show placeholder icon if no valid image or if image failed to load
+                        if (!rawImage || !imageUrl || failedImages.has(imageUrl)) {
+                          return (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <FiPackage className="w-16 h-16 text-gray-400 dark:text-gray-600" />
+                            </div>
                           );
-                        })()}
+                        }
+                        
+                        return (
+                          <img
+                            src={imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
+                            onError={() => {
+                              setFailedImages(prev => new Set(prev).add(imageUrl));
+                            }}
+                          />
+                        );
+                      })()}
                       
                       {product.is_featured && (
                         <div className="absolute top-3 right-3">

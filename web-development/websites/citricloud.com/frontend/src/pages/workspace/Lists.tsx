@@ -26,7 +26,17 @@ export default function ListsApp() {
   const [newListName, setNewListName] = useState('');
   const [newItemText, setNewItemText] = useState('');
   const [editingItem, setEditingItem] = useState<{listId: number, itemId: number, text: string} | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const selectedList = lists.find(l => l.id === selectedListId) || null;
+
+  // Track dark mode
+  useEffect(() => {
+    const checkDarkMode = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   // Fetch lists on mount
   useEffect(() => {
@@ -99,7 +109,7 @@ export default function ListsApp() {
       <div className="bg-red-500 text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center gap-2">
-            <BrandLogo size="small" showTagline={true} variant="light" />
+            <img src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} alt="CITRICLOUD" className="h-12 w-auto" />
             <span className="text-white font-semibold text-sm">Lists</span>
           </div>
           <div className="hidden lg:flex items-center text-sm text-white/90 px-3 py-1 bg-white/10 rounded">

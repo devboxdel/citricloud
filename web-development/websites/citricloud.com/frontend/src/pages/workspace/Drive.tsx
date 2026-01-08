@@ -32,6 +32,16 @@ export default function DriveApp() {
   const [section, setSection] = useState<'home' | 'my-files' | 'recent' | 'favorites' | 'shared' | 'photos' | 'recycle'>('home');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Track dark mode
+  useEffect(() => {
+    const checkDarkMode = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   // Load and persist items via backend workspace API (fallback to local)
   const owner = user?.email?.split('@')[0] || 'User';
@@ -254,7 +264,7 @@ export default function DriveApp() {
           </button>
           
           <div className="flex items-center gap-2">
-            <BrandLogo size="small" showTagline={true} variant="light" />
+            <img src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} alt="CITRICLOUD" className="h-12 w-auto" />
             <span className="text-sm font-semibold hidden sm:inline">Drive</span>
           </div>
           <div className="relative flex-1 max-w-xl hidden md:block">

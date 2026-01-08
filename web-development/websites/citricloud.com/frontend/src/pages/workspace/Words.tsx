@@ -23,8 +23,18 @@ export default function WordsApp() {
   const [newDocName, setNewDocName] = useState('');
   const [recentDocs, setRecentDocs] = useState<Document[]>([]);
   const [storeItemId, setStoreItemId] = useState<number | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const selectedDoc = recentDocs.find(d => d.id === selectedDocId) || null;
   const owner = user?.email?.split('@')[0] || 'User';
+
+  // Track dark mode
+  useEffect(() => {
+    const checkDarkMode = () => setIsDarkMode(document.documentElement.classList.contains('dark'));
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   // Load documents from backend
   useEffect(() => {
@@ -90,7 +100,7 @@ export default function WordsApp() {
       <div className="bg-purple-600 text-white px-2 sm:px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center gap-2">
-            <BrandLogo size="small" showTagline={true} variant="light" />
+            <img src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} alt="CITRICLOUD" className="h-12 w-auto" />
             <span className="text-white font-semibold text-sm">Words</span>
           </div>
           <div className="hidden lg:flex items-center text-sm text-white/90 px-3 py-1 bg-white/10 rounded">

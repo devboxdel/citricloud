@@ -11,7 +11,7 @@ import {
   FiGlobe, FiMaximize, FiMinimize, FiX, FiChevronLeft, FiChevronRight, FiBarChart2,
   FiGrid, FiPackage, FiDatabase, FiLayers, FiHelpCircle, FiServer, FiHardDrive, FiCpu,
   FiDownload, FiCamera, FiGitBranch, FiTerminal, FiWifi, FiShield, FiZap, FiTrendingDown, FiDisc,
-  FiShare2, FiClock, FiTag, FiMessageSquare, FiAlertTriangle, FiMessageCircle
+  FiShare2, FiClock, FiTag, FiMessageSquare, FiAlertTriangle, FiMessageCircle, FiFolder, FiActivity
 } from 'react-icons/fi';
 import ThemeToggle from './ThemeToggle';
 import { getVersionInfo } from '../utils/version';
@@ -219,6 +219,12 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
     Main: [
       { icon: <FiHome />, label: 'Dashboard', path: '/dashboard' },
       { icon: <FiBarChart2 />, label: 'Analytics', path: '/dashboard/analytics' },
+      
+      { icon: <FiUsers />, label: 'Collaboration', isCategory: true },
+      { icon: <FiUsers />, label: 'Teams', path: '/dashboard/teams', isPadded: true },
+      { icon: <FiMessageSquare />, label: 'Messages', path: '/dashboard/messages', isPadded: true },
+      { icon: <FiFolder />, label: 'File Sharing', path: '/dashboard/file-sharing', isPadded: true },
+      { icon: <FiActivity />, label: 'Activity Feed', path: '/dashboard/activity', isPadded: true },
     ],
     ERP: [
       { icon: <FiPackage />, label: 'Products', isCategory: true },
@@ -348,10 +354,10 @@ export default function DashboardLayout({ children, title, breadcrumb, showSampl
             </Link>
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center">
-              <BrandLogo 
-                size="small" 
-                showTagline={true}
-                variant="dark"
+              <img 
+                src={isDarkMode ? "/darkmode-cc-logo.svg" : "/lightmode-cc-logo.svg"} 
+                alt="CITRICLOUD" 
+                className="h-12 w-auto"
               />
             </Link>
           </div>
