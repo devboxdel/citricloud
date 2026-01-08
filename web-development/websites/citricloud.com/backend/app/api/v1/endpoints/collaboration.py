@@ -207,6 +207,88 @@ class TeamMemberBatchAdd(BaseModel):
     role: str = "MEMBER"
 
 
+class TeamUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    avatar: Optional[str] = None
+    color: Optional[str] = None
+
+
+@router.patch("/teams/{team_id}")
+async def update_team(
+    team_id: int,
+    team_data: TeamUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Update team details"""
+    # Get team with members
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if current user is owner
+    current_member = next((m for m in team.members if m.user_id == current_user.id), None)
+    if not current_member or current_member.role != TeamRole.OWNER:
+        raise HTTPException(status_code=403, detail="Only team owners can update team settings")
+    
+    # Update fields
+    if team_data.name is not None:
+        team.name = team_data.name
+    if team_data.description is not None:
+        team.description = team_data.description
+    if team_data.avatar is not None:
+        team.avatar = team_data.avatar
+    if team_data.color is not None:
+        team.color = team_data.color
+    
+    await db.commit()
+    await db.refresh(team)
+    
+    return {
+        "id": team.id,
+        "name": team.name,
+        "description": team.description,
+        "avatar": team.avatar,
+        "color": team.color,
+        "message": "Team updated successfully"
+    }
+
+
+@router.delete("/teams/{team_id}")
+async def delete_team(
+    team_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Delete a team"""
+    # Get team with members
+    team_query = select(Team).where(Team.id == team_id).options(
+        selectinload(Team.members)
+    )
+    team_result = await db.execute(team_query)
+    team = team_result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    # Check if current user is owner
+    current_member = next((m for m in team.members if m.user_id == current_user.id), None)
+    if not current_member or current_member.role != TeamRole.OWNER:
+        raise HTTPException(status_code=403, detail="Only team owners can delete the team")
+    
+    # Delete team (cascade will handle members, channels, etc.)
+    await db.delete(team)
+    await db.commit()
+    
+    return {"message": "Team deleted successfully"}
+
+
 @router.post("/teams/{team_id}/members")
 async def add_team_member(
     team_id: int,

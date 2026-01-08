@@ -72,6 +72,11 @@ export default function Teams() {
   const [showChannelModal, setShowChannelModal] = useState(false);
   const [channelMessageInput, setChannelMessageInput] = useState('');
   const [sendingChannelMessage, setSendingChannelMessage] = useState(false);
+  const [showTeamSettingsModal, setShowTeamSettingsModal] = useState(false);
+  const [editTeamName, setEditTeamName] = useState('');
+  const [editTeamDescription, setEditTeamDescription] = useState('');
+  const [updatingTeam, setUpdatingTeam] = useState(false);
+  const [deletingTeam, setDeletingTeam] = useState(false);
 
   useEffect(() => {
     fetchTeams();
@@ -235,6 +240,80 @@ export default function Teams() {
       alert('Failed to send message');
     } finally {
       setSendingChannelMessage(false);
+    }
+  };
+
+  const openTeamSettings = () => {
+    const team = teams.find(t => t.id === selectedTeam);
+    if (team) {
+      setEditTeamName(team.name);
+      setEditTeamDescription(team.description || '');
+      setShowTeamSettingsModal(true);
+    }
+  };
+
+  const updateTeam = async () => {
+    if (!editTeamName.trim() || !selectedTeam) return;
+
+    setUpdatingTeam(true);
+    try {
+      const response = await fetch(`/api/v1/collaboration/teams/${selectedTeam}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        },
+        body: JSON.stringify({
+          name: editTeamName,
+          description: editTeamDescription
+        })
+      });
+
+      if (response.ok) {
+        setShowTeamSettingsModal(false);
+        await fetchTeams();
+        if (selectedTeam) await fetchTeamDetails(selectedTeam);
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Failed to update team');
+      }
+    } catch (error) {
+      console.error('Error updating team:', error);
+      alert('Failed to update team');
+    } finally {
+      setUpdatingTeam(false);
+    }
+  };
+
+  const deleteTeam = async () => {
+    if (!selectedTeam) return;
+    
+    if (!confirm('Are you sure you want to delete this team? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingTeam(true);
+    try {
+      const response = await fetch(`/api/v1/collaboration/teams/${selectedTeam}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
+
+      if (response.ok) {
+        setShowTeamSettingsModal(false);
+        setSelectedTeam(null);
+        await fetchTeams();
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Failed to delete team');
+      }
+    } catch (error) {
+      console.error('Error deleting team:', error);
+      alert('Failed to delete team');
+    } finally {
+      setDeletingTeam(false);
     }
   };
 
@@ -419,7 +498,7 @@ export default function Teams() {
                       </div>
                     </div>
                     <button 
-                      onClick={() => alert('Team settings coming soon!')}
+                      onClick={openTeamSettings}
                       className="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
                     >
                       <FiSettings />
@@ -883,6 +962,115 @@ export default function Teams() {
                     <span>Send</span>
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Team Settings Modal */}
+      <AnimatePresence>
+        {showTeamSettingsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowTeamSettingsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                  <FiSettings className="text-primary-500" />
+                  <span>Team Settings</span>
+                </h3>
+                <button
+                  onClick={() => setShowTeamSettingsModal(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <FiX className="text-gray-500" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Team Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={editTeamName}
+                    onChange={(e) => setEditTeamName(e.target.value)}
+                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white"
+                    disabled={updatingTeam || deletingTeam}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={editTeamDescription}
+                    onChange={(e) => setEditTeamDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white resize-none"
+                    disabled={updatingTeam || deletingTeam}
+                  />
+                </div>
+              </div>
+
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={deleteTeam}
+                  disabled={updatingTeam || deletingTeam}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                >
+                  {deletingTeam ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <span>Delete Team</span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowTeamSettingsModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  disabled={updatingTeam || deletingTeam}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={updateTeam}
+                  disabled={updatingTeam || deletingTeam || !editTeamName.trim()}
+                  className="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {updatingTeam ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiCheck />
+                      <span>Save Changes</span>
+                    </>
+                  )}
+                </button>
               </div>
             </motion.div>
           </motion.div>
