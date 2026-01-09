@@ -217,6 +217,15 @@ class User(Base):
     notification_settings = relationship("NotificationSetting", back_populates="user", uselist=False)
     user_sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
     crm_role = relationship("Role", foreign_keys=[role_id], uselist=False)
+    
+    # Hosting Management Relationships
+    servers = relationship("Server", back_populates="user", cascade="all, delete-orphan")
+    vpns = relationship("VPN", back_populates="user", cascade="all, delete-orphan")
+    domains = relationship("Domain", back_populates="user", cascade="all, delete-orphan")
+    dns_zones = relationship("DNSZone", back_populates="user", cascade="all, delete-orphan")
+    email_accounts = relationship("EmailAccount", back_populates="user", cascade="all, delete-orphan")
+    wordpress_sites = relationship("WordPressSite", back_populates="user", cascade="all, delete-orphan")
+    control_panels = relationship("ControlPanel", back_populates="user", cascade="all, delete-orphan")
 
 
 # ========== ERP Models ==========

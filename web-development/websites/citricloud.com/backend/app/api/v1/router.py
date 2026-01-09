@@ -3,7 +3,7 @@ API v1 Router
 """
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, crm, cms, erp, activity, status_codes, email, email_aliases, shared_emails, courses, lists, bookings, forms, todos, workspace, notifications, srm, invoices, site_settings, shop, collaboration
+from app.api.v1.endpoints import auth, crm, cms, erp, activity, status_codes, email, email_aliases, shared_emails, courses, lists, bookings, forms, todos, workspace, notifications, srm, invoices, site_settings, shop, collaboration, hosting
 
 api_router = APIRouter()
 
@@ -53,4 +53,5 @@ api_router.include_router(notifications.router, prefix="/notifications", tags=["
 api_router.include_router(srm.router, prefix="/srm", tags=["Server Resources Management"])
 api_router.include_router(site_settings.router, prefix="/site-settings", tags=["Site Settings"])
 api_router.include_router(collaboration.router, prefix="/collaboration", tags=["Collaboration"])
+api_router.include_router(hosting.router, prefix="/hosting", tags=["Hosting Management"])
 

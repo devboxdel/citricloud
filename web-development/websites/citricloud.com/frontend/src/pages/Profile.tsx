@@ -11,7 +11,7 @@ import { profileAPI, emailAliasAPI, sharedEmailAPI, invoicesAPI, erpAPI, crmAPI,
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { useLanguage } from '../context/LanguageContext';
-import { FiUser, FiMail, FiPhone, FiCheckCircle, FiXCircle, FiSettings, FiMoon, FiSun, FiClock, FiBell, FiLock, FiGlobe, FiGrid, FiBriefcase, FiFileText, FiAlertCircle, FiAward, FiPackage, FiShoppingCart, FiActivity, FiCreditCard, FiRepeat, FiPlus, FiTrash2, FiEdit2, FiAtSign, FiMapPin, FiChevronRight, FiRefreshCw, FiZap, FiCreditCard as FiPayment, FiDownload, FiFilter, FiSearch, FiMessageSquare, FiShield, FiUsers } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiCheckCircle, FiXCircle, FiSettings, FiMoon, FiSun, FiClock, FiBell, FiLock, FiGlobe, FiGrid, FiBriefcase, FiFileText, FiAlertCircle, FiAward, FiPackage, FiShoppingCart, FiActivity, FiCreditCard, FiRepeat, FiPlus, FiTrash2, FiEdit2, FiAtSign, FiMapPin, FiChevronRight, FiRefreshCw, FiZap, FiCreditCard as FiPayment, FiDownload, FiFilter, FiSearch, FiMessageSquare, FiShield, FiUsers, FiServer } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -1742,6 +1742,12 @@ export default function ProfilePage() {
                     Workspace
                   </button>
                 </Link>
+                <a href="https://manage.citricloud.com">
+                  <button className="px-6 py-3 rounded-xl bg-white/60 dark:bg-gray-800/60 text-gray-800 dark:text-gray-100 font-medium border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-700 transition-all flex items-center gap-2">
+                    <FiServer className="w-5 h-5" />
+                    Management
+                  </button>
+                </a>
               </div>
             </div>
           </motion.div>
